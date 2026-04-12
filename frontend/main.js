@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionTitle     = document.getElementById('section-title');
     const navFavorites     = document.getElementById('nav-favorites');
     const navHistory       = document.getElementById('nav-history');
+    const navHome          = document.getElementById('nav-home');
     const navExplore       = document.getElementById('nav-explore');
     const navMovies        = document.getElementById('nav-movies');
     const dynamicGreeting  = document.getElementById('dynamic-greeting');
@@ -69,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // PAGE NAVIGATION
     // =============================================
     const allPages = [pageHome, pageExplore, pageHollywood];
-    const allNavLinks = [navExplore, navMovies, navFavorites, navHistory];
+    const allNavLinks = [navHome, navExplore, navMovies, navFavorites, navHistory];
 
     function showPage(targetPage, activeNav = null) {
         allPages.forEach(p => { if (p) p.classList.add('hidden'); });
@@ -82,11 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Start on home page
-    showPage(pageHome, navExplore);
-    // Actually show home to start, mark Explore as first item that would open explore
-    pageHome.classList.remove('hidden');
+    showPage(pageHome, navHome);
     pageExplore.classList.add('hidden');
     pageHollywood.classList.add('hidden');
+
+    navHome.addEventListener('click', (e) => {
+        e.preventDefault();
+        showPage(pageHome, navHome);
+    });
 
     navExplore.addEventListener('click', (e) => {
         e.preventDefault();
