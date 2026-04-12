@@ -152,7 +152,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
                     <div class="relative overflow-hidden rounded-2xl group cursor-pointer h-40 playlist-card" data-mood="energetic">
-                        <img src="https://images.unsplash.com/photo-1493225457124-a1a2a5f529a8?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-110" alt="Party">
+                        <img src="party_hits.png" class="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-110" alt="Party">
                         <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
                         <div class="absolute bottom-4 left-4 right-4">
                             <h4 class="font-bold text-lg text-white">Hollywood Party Hits 🎉</h4>
@@ -200,11 +200,11 @@
         <!-- Central Controls -->
         <div class="flex flex-col items-center justify-center w-2/4 max-w-md">
             <div class="flex items-center space-x-6 mb-2">
-                <button class="text-gray-400 hover:text-white transition"><i class="fa-solid fa-backward-step"></i></button>
+                <button id="player-prev-btn" class="text-gray-400 hover:text-white transition"><i class="fa-solid fa-backward-step"></i></button>
                 <button id="player-play-btn" class="w-10 h-10 rounded-full bg-white text-gray-900 flex items-center justify-center hover:scale-110 hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] transition">
                     <i class="fa-solid fa-play ml-0.5 text-lg"></i>
                 </button>
-                <button class="text-gray-400 hover:text-white transition"><i class="fa-solid fa-forward-step"></i></button>
+                <button id="player-next-btn" class="text-gray-400 hover:text-white transition"><i class="fa-solid fa-forward-step"></i></button>
             </div>
             
             <!-- Progress Bar -->

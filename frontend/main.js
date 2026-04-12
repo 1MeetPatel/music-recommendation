@@ -16,14 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioElement = document.getElementById('audio-element');
     const playerImg = document.getElementById('player-img');
     const playerTitle = document.getElementById('player-title');
-    const playerArtist = document.getElementById('player-artist');
     const playerPlayBtn = document.getElementById('player-play-btn');
+    const playerNextBtn = document.getElementById('player-next-btn');
+    const playerPrevBtn = document.getElementById('player-prev-btn');
     const playerProgress = document.getElementById('player-progress');
     const playerCurrentTime = document.getElementById('player-current-time');
     const playerCloseBtn = document.getElementById('player-close-btn');
 
     let currentPlayingCard = null;
     let currentMood = null;
+    let currentPlaylist = [];
+    let currentIndex = -1;
 
     // --- State Helpers ---
     const getFavorites = () => JSON.parse(localStorage.getItem('moodify_favorites')) || [];
@@ -97,7 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentMood = null;
         sectionTitle.textContent = "Your Favorites";
         btnSeeAll.textContent = "Discover more";
-        renderSongs(getFavorites());
+        const favs = getFavorites();
+        currentPlaylist = favs;
+        renderSongs(favs);
         emptyState.classList.add('hidden');
         songsContainer.classList.remove('hidden');
     });
@@ -107,7 +112,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentMood = null;
         sectionTitle.textContent = "Recently Played";
         btnSeeAll.textContent = "Clear History";
-        renderSongs(getHistory());
+        const history = getHistory();
+        currentPlaylist = history;
+        renderSongs(history);
         emptyState.classList.add('hidden');
         songsContainer.classList.remove('hidden');
     });
@@ -172,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleSongsResponse(data) {
         if (data.songs && data.songs.length > 0) {
+            currentPlaylist = data.songs;
             renderSongs(data.songs);
             loader.classList.add('hidden');
             songsContainer.classList.remove('hidden');
@@ -246,14 +254,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Audio Player Logic ---
 
-    function playSong(song, cardElement) {
+    function playSong(song, cardElement = null) {
+        // Track index in current playlist
+        currentIndex = currentPlaylist.findIndex(s => s.id === song.id);
+        
         // Add to history
         addToHistory(song);
 
         // Update Mini Player UI
         playerImg.src = song.image || 'https://via.placeholder.com/150';
         playerTitle.textContent = song.title;
-        playerArtist.textContent = song.artist;
+        playerArtist.textContent = song.artist || 'Unknown Artist';
         
         // Load Audio
         audioElement.src = song.preview_url;
@@ -269,9 +280,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if(currentPlayingCard) {
             currentPlayingCard.classList.remove('ring-2', 'ring-purple-500');
         }
-        currentPlayingCard = cardElement;
-        cardElement.classList.add('ring-2', 'ring-purple-500');
+        
+        if (cardElement) {
+            currentPlayingCard = cardElement;
+            cardElement.classList.add('ring-2', 'ring-purple-500');
+        } else {
+            // Find card element by ID if not provided (for next/prev)
+            const cards = document.querySelectorAll('.song-card');
+            cards.forEach(card => {
+                // This is a bit complex as cards are dynamic, 
+                // but usually the index in playlist matches the child index in container
+                // but safer to just clear previous highlight
+                currentPlayingCard = null;
+            });
+        }
     }
+
+    function playNext() {
+        if (currentPlaylist.length === 0) return;
+        currentIndex = (currentIndex + 1) % currentPlaylist.length;
+        playSong(currentPlaylist[currentIndex]);
+    }
+
+    function playPrevious() {
+        if (currentPlaylist.length === 0) return;
+        currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+        playSong(currentPlaylist[currentIndex]);
+    }
+
+    playerNextBtn.addEventListener('click', playNext);
+    playerPrevBtn.addEventListener('click', playPrevious);
 
     // Main Play/Pause Button
     playerPlayBtn.addEventListener('click', () => {
@@ -314,8 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Reset when ended
     audioElement.addEventListener('ended', () => {
-        playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
-        playerProgress.style.width = '0%';
-        playerCurrentTime.textContent = '0:00';
+        playNext();
     });
 });
