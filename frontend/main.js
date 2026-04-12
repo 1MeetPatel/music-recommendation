@@ -100,7 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerProgress   = document.getElementById('player-progress');
     const playerCurrentTime = document.getElementById('player-current-time');
     const playerCloseBtn   = document.getElementById('player-close-btn');
+    const playerFavBtn     = document.getElementById('player-fav-btn');
 
+    let currentPlayingSong = null;
     let currentPlayingCard = null;
     let currentMood        = null;
     let currentPlaylist    = [];
@@ -461,9 +463,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (currentlyFav) {
                     removeFavorite(song.id);
                     favBtn.classList.replace('text-[#1DB954]', 'text-gray-500');
+                    if (currentPlayingSong?.id === song.id) updatePlayerFavoriteUI(song);
                 } else {
                     saveFavorite(song);
                     favBtn.classList.replace('text-gray-500', 'text-[#1DB954]');
+                    if (currentPlayingSong?.id === song.id) updatePlayerFavoriteUI(song);
                 }
             });
 
@@ -539,6 +543,8 @@ document.addEventListener('DOMContentLoaded', () => {
             await audioElement.play();
             playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
             addToHistory(song);
+            currentPlayingSong = song;
+            updatePlayerFavoriteUI(song);
         } catch (err) {
             console.error('Playback error:', err);
             playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
@@ -577,6 +583,50 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPlayingCard.classList.remove('ring-2', 'ring-purple-500');
             currentPlayingCard = null;
         }
+    });
+
+    // =============================================
+    // PLAYER FAVORITES LOGIC
+    // =============================================
+    function updatePlayerFavoriteUI(song) {
+        if (!song || !playerFavBtn) return;
+        const favs  = getFavorites();
+        const isFav = favs.find(s => s.id === song.id);
+        
+        if (isFav) {
+            playerFavBtn.classList.replace('text-gray-400', 'text-[#1DB954]');
+            playerFavBtn.querySelector('i').classList.replace('fa-regular', 'fa-solid'); // in case we used regular
+        } else {
+            playerFavBtn.classList.replace('text-[#1DB954]', 'text-gray-400');
+        }
+    }
+
+    playerFavBtn.addEventListener('click', () => {
+        if (!currentPlayingSong) return;
+        const favs  = getFavorites();
+        const isFav = favs.find(s => s.id === currentPlayingSong.id);
+        
+        if (isFav) {
+            removeFavorite(currentPlayingSong.id);
+        } else {
+            saveFavorite(currentPlayingSong);
+        }
+        
+        updatePlayerFavoriteUI(currentPlayingSong);
+        
+        // Sync with visible card hearts
+        const allCardFavBtns = document.querySelectorAll('.song-card .favorite-btn');
+        allCardFavBtns.forEach(btn => {
+            // This is a bit brute force but safe. We could optimize by checking card data, 
+            // but for now, we'll just check if the parent card's song title matches.
+            // Better: re-render or re-scan correctly.
+            const card = btn.closest('.song-card');
+            const title = card.querySelector('h4').textContent;
+            if (title === currentPlayingSong.title) {
+                if (isFav) btn.classList.replace('text-[#1DB954]', 'text-gray-500');
+                else btn.classList.replace('text-gray-500', 'text-[#1DB954]');
+            }
+        });
     });
 
     audioElement.addEventListener('timeupdate', () => {
