@@ -255,28 +255,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Audio Player Logic ---
 
     function playSong(song, cardElement = null) {
+        if (!song) return;
+        console.log("Playing:", song.title, "Source:", song.preview_url);
+        
         // Track index in current playlist
         currentIndex = currentPlaylist.findIndex(s => s.id === song.id);
         
-        // Add to history
-        addToHistory(song);
-
-        // Update Mini Player UI
+        // Update Mini Player UI Immediately (before play attempt)
+        miniPlayer.classList.remove('translate-y-full');
         playerImg.src = song.image || 'https://via.placeholder.com/150';
         playerTitle.textContent = song.title;
         playerArtist.textContent = song.artist || 'Unknown Artist';
         
-        // Load Audio
-        audioElement.src = song.preview_url;
-        audioElement.play();
+        // Reset progress bar
+        playerProgress.style.width = '0%';
+        playerCurrentTime.textContent = '0:00';
         
-        // Show Player (slide up)
-        miniPlayer.classList.remove('translate-y-full');
-        
-        // Update Play Button Icon
-        playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
-        
-        // Visual indicator on card (optional)
+        // Visual indicator on card
         if(currentPlayingCard) {
             currentPlayingCard.classList.remove('ring-2', 'ring-purple-500');
         }
@@ -285,15 +280,36 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPlayingCard = cardElement;
             cardElement.classList.add('ring-2', 'ring-purple-500');
         } else {
-            // Find card element by ID if not provided (for next/prev)
-            const cards = document.querySelectorAll('.song-card');
-            cards.forEach(card => {
-                // This is a bit complex as cards are dynamic, 
-                // but usually the index in playlist matches the child index in container
-                // but safer to just clear previous highlight
+            // If playing from next/prev, try to find the card in DOM to highlight it
+            const allCards = document.querySelectorAll('.song-card');
+            // Since cards are rendered in order, current index usually matches
+            if (currentIndex !== -1 && allCards[currentIndex]) {
+                currentPlayingCard = allCards[currentIndex];
+                currentPlayingCard.classList.add('ring-2', 'ring-purple-500');
+                currentPlayingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            } else {
                 currentPlayingCard = null;
+            }
+        }
+
+        // Load and Play Audio
+        audioElement.src = song.preview_url;
+        
+        // Modern browsers return a promise from .play()
+        const playPromise = audioElement.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
+            }).catch(error => {
+                console.error("Playback failed (likely autoplay policy):", error);
+                playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
+                // Note: The UI stays up so the user can click the play button manually
             });
         }
+        
+        // Add to history
+        addToHistory(song);
     }
 
     function playNext() {
