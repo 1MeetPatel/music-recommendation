@@ -13,23 +13,15 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-[#121212] text-[#b3b3b3] font-sans h-screen overflow-hidden flex selection:bg-[#1DB954] selection:text-black">
-
-    <!-- Comfort Aura Background -->
-    <div id="aura-container">
-        <div class="aura-blob blob-1"></div>
-        <div class="aura-blob blob-2"></div>
-    </div>
+<body class="bg-[#121212] text-white font-sans h-screen overflow-hidden flex selection:bg-[#1DB954] selection:text-black">
 
     <!-- Sidebar -->
     <aside class="w-64 glass-sidebar h-full flex flex-col p-6 z-20">
-        <div class="flex items-center space-x-3 mb-10">
         <div class="flex items-center space-x-3 mb-10">
             <div class="w-8 h-8 rounded-full bg-[#1DB954] flex items-center justify-center shadow-lg shadow-[#1DB954]/20">
                 <i class="fa-solid fa-music text-black text-sm"></i>
             </div>
             <h1 class="text-2xl font-bold tracking-tight text-white">Moodify</h1>
-        </div>
         </div>
 
         <nav class="flex-1 space-y-6">
@@ -53,18 +45,15 @@
 
     <!-- Main Content -->
     <main class="flex-1 h-full overflow-y-auto pb-24 relative z-10 custom-scroll">
-        <!-- Floating Ambient Background -->
-        <div class="fixed top-0 left-64 right-0 bottom-0 pointer-events-none -z-10">
-            <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/30 rounded-full blur-[120px]"></div>
-            <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[100px]"></div>
-        </div>
+        <!-- Ambient Background (Cleared for Spotify Identical Look) -->
+        <div class="fixed top-0 left-64 right-0 bottom-0 pointer-events-none -z-10 bg-[#121212]"></div>
 
         <div class="p-8 max-w-7xl mx-auto">
             <!-- Top Bar -->
             <header class="flex justify-between items-center mb-10">
                 <div>
-                    <h2 id="dynamic-greeting" class="text-3xl font-bold mb-1">Good Evening 👋</h2>
-                    <p class="text-gray-400 text-sm">Discover Hollywood songs based on your mood</p>
+                    <h2 id="dynamic-greeting" class="text-3xl font-bold mb-1 text-white">Good Evening 👋</h2>
+                    <p class="text-gray-400 text-sm">Hollywood music library</p>
                 </div>
                 
                 <div class="flex items-center space-x-6">
@@ -241,18 +230,18 @@
             <!-- Search Suggestions (quick mood chips) -->
             <div id="explore-chips" class="flex flex-wrap gap-3 mb-8">
                 <span class="text-xs text-gray-500 self-center mr-2">Try:</span>
-                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition">🔥 Top Hits 2024</button>
-                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition">🎸 Rock Classics</button>
-                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition">💜 Taylor Swift</button>
-                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition">🎤 Ed Sheeran</button>
-                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition">🎵 Billie Eilish</button>
-                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition">🌊 The Weeknd</button>
-                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition">🌟 Dua Lipa</button>
+                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954] hover:border-[#1DB954] hover:text-black transition">🔥 Top Hits 2024</button>
+                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954] hover:border-[#1DB954] hover:text-black transition">🎸 Rock Classics</button>
+                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954] hover:border-[#1DB954] hover:text-black transition">💚 Taylor Swift</button>
+                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954] hover:border-[#1DB954] hover:text-black transition">🎤 Ed Sheeran</button>
+                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954] hover:border-[#1DB954] hover:text-black transition">🎵 Billie Eilish</button>
+                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954] hover:border-[#1DB954] hover:text-black transition">🌊 The Weeknd</button>
+                <button class="explore-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954] hover:border-[#1DB954] hover:text-black transition">🌟 Dua Lipa</button>
             </div>
 
             <!-- Explore Results -->
             <div id="explore-loader" class="hidden flex flex-col items-center justify-center py-10">
-                <div class="w-10 h-10 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+                <div class="w-10 h-10 border-4 border-[#1DB954]/30 border-t-[#1DB954] rounded-full animate-spin"></div>
                 <p class="text-sm text-gray-400 mt-3 animate-pulse">Searching for songs...</p>
             </div>
             <div id="explore-empty" class="flex flex-col items-center justify-center py-20 text-gray-500">
@@ -272,18 +261,18 @@
             <!-- Filter Genre Chips -->
             <div class="flex flex-wrap gap-3 mb-8">
                 <span class="text-xs text-gray-500 self-center mr-2">Browse by:</span>
-                <button class="hw-chip active-chip px-4 py-1.5 rounded-full bg-purple-600/60 border border-purple-500/50 text-sm text-white transition" data-query="top hollywood english hits">🌟 All</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition" data-query="hollywood pop songs english">🎵 Pop</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition" data-query="hollywood rock english hits">🎸 Rock</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition" data-query="hollywood rnb soul english">🎶 R&B</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition" data-query="hollywood hip hop rap english">🎤 Hip-Hop</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition" data-query="hollywood indie alternative english">🌿 Indie</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-purple-600/40 hover:border-purple-500/50 hover:text-white transition" data-query="2024 hollywood top chart songs">🔥 Charts 2024</button>
+                <button class="hw-chip active-chip px-4 py-1.5 rounded-full bg-[#1DB954] border border-[#1DB954] text-black text-sm font-bold transition" data-query="top hollywood english hits">🌟 All</button>
+                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood pop songs english">🎵 Pop</button>
+                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood rock english hits">🎸 Rock</button>
+                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood rnb soul english">🎶 R&B</button>
+                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood hip hop rap english">🎤 Hip-Hop</button>
+                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood indie alternative english">🌿 Indie</button>
+                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="2024 hollywood top chart songs">🔥 Charts 2024</button>
             </div>
 
             <!-- Loading -->
             <div id="hw-loader" class="hidden flex flex-col items-center justify-center py-10">
-                <div class="w-10 h-10 border-4 border-pink-500/30 border-t-pink-500 rounded-full animate-spin"></div>
+                <div class="w-10 h-10 border-4 border-[#1DB954]/30 border-t-[#1DB954] rounded-full animate-spin"></div>
                 <p class="text-sm text-gray-400 mt-3 animate-pulse">Loading Hollywood songs...</p>
             </div>
             <!-- Grid -->
@@ -328,8 +317,8 @@
 
         <!-- Right Controls -->
         <div class="flex items-center justify-end space-x-4 w-1/4">
-            <button class="text-gray-400 hover:text-pink-400 transition" title="Favorite"><i class="fa-solid fa-heart"></i></button>
-            <button id="player-close-btn" class="text-gray-400 hover:text-red-400 transition" title="Close"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <button class="text-gray-400 hover:text-[#1DB954] transition" title="Favorite"><i class="fa-solid fa-heart"></i></button>
+            <button id="player-close-btn" class="text-gray-400 hover:text-[#1DB954] transition" title="Close"><i class="fa-solid fa-xmark text-xl"></i></button>
         </div>
 
         <!-- Hidden Audio Element -->
@@ -341,8 +330,8 @@
         <!-- Backdrop -->
         <div id="profile-modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
 
-        <!-- Modal Card -->
-        <div class="relative z-10 w-full max-w-sm mx-4 bg-gray-900 border border-gray-700/60 rounded-3xl shadow-[0_0_60px_rgba(168,85,247,0.25)] p-8 flex flex-col items-center" style="animation: modalSlideIn 0.3s ease">
+            <!-- Modal Card -->
+        <div class="relative z-10 w-full max-w-sm mx-4 bg-[#181818] border border-gray-800 rounded-3xl shadow-2xl p-8 flex flex-col items-center" style="animation: modalSlideIn 0.3s ease">
 
             <!-- Close Button -->
             <button id="profile-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-white transition text-xl">
@@ -353,9 +342,9 @@
 
             <!-- Avatar Preview + Upload -->
             <div class="relative mb-6 group cursor-pointer" id="profile-avatar-upload-area">
-                <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.4)] bg-gray-700 flex items-center justify-center">
+                <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-[#1DB954]/30 shadow-lg bg-gray-800 flex items-center justify-center">
                     <img id="profile-modal-avatar" src="" alt="Profile" class="w-full h-full object-cover hidden">
-                    <i id="profile-modal-avatar-icon" class="fa-solid fa-user text-gray-400 text-5xl"></i>
+                    <i id="profile-modal-avatar-icon" class="fa-solid fa-user text-gray-500 text-5xl"></i>
                 </div>
                 <!-- Camera overlay -->
                 <div class="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">

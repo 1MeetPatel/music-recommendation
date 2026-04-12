@@ -14,46 +14,6 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-/* Comfort Aura Background */
-#aura-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: -1;
-    overflow: hidden;
-}
-
-.aura-blob {
-    position: absolute;
-    width: 60vw;
-    height: 60vw;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.1;
-}
-
-.blob-1 {
-    background: var(--spotify-green);
-    top: -20%;
-    left: -10%;
-    animation: drift 60s infinite alternate ease-in-out;
-}
-
-.blob-2 {
-    background: #2e1065; /* Dark purple/blue for depth */
-    bottom: -10%;
-    right: -10%;
-    animation: drift 80s infinite alternate-reverse ease-in-out;
-}
-
-@keyframes drift {
-    0%   { transform: translate(0, 0); }
-    100% { transform: translate(5%, 10%); }
-}
-
 /* Scrollbar customization */
 .custom-scroll::-webkit-scrollbar {
     width: 8px;
