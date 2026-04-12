@@ -181,6 +181,37 @@
             </section>
         </div>
 
+        <!-- ===== FAVORITES PAGE ===== -->
+        <div id="page-favorites" class="hidden p-8 max-w-7xl mx-auto">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-1">Your Favorites <span class="text-pink-400">❤️</span></h2>
+                <p class="text-gray-400 text-sm">Songs you've loved</p>
+            </div>
+            <div id="fav-empty" class="flex flex-col items-center justify-center py-20 text-gray-500">
+                <i class="fa-solid fa-heart-crack text-5xl mb-4 text-gray-700"></i>
+                <p>No favorites yet. Click the ❤️ on any song to save it here.</p>
+            </div>
+            <div id="fav-results" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+        </div>
+
+        <!-- ===== HISTORY PAGE ===== -->
+        <div id="page-history" class="hidden p-8 max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold mb-1">Recently Played <span class="text-purple-400">🕐</span></h2>
+                    <p class="text-gray-400 text-sm">Your listening history</p>
+                </div>
+                <button id="btn-clear-history" class="text-sm text-red-400 hover:text-red-300 border border-red-400/30 hover:border-red-300/50 px-4 py-1.5 rounded-full transition">
+                    <i class="fa-solid fa-trash-can mr-1.5"></i>Clear History
+                </button>
+            </div>
+            <div id="history-empty" class="flex flex-col items-center justify-center py-20 text-gray-500">
+                <i class="fa-solid fa-clock-rotate-left text-5xl mb-4 text-gray-700"></i>
+                <p>Nothing played yet. Start listening to build your history.</p>
+            </div>
+            <div id="history-results" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+        </div>
+
         <!-- ===== EXPLORE PAGE ===== -->
         <div id="page-explore" class="hidden p-8 max-w-7xl mx-auto">
             <div class="mb-8">

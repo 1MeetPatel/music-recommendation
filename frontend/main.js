@@ -33,6 +33,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Main home page wrapper
     const pageHome = document.querySelector('.p-8.max-w-7xl.mx-auto');
 
+    // Favorites page
+    const pageFavorites = document.getElementById('page-favorites');
+    const favEmpty      = document.getElementById('fav-empty');
+    const favResults    = document.getElementById('fav-results');
+
+    // History page
+    const pageHistory     = document.getElementById('page-history');
+    const historyEmpty    = document.getElementById('history-empty');
+    const historyResults  = document.getElementById('history-results');
+    const btnClearHistory = document.getElementById('btn-clear-history');
+
     // Audio Player
     const miniPlayer       = document.getElementById('mini-player');
     const audioElement     = document.getElementById('audio-element');
@@ -69,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // =============================================
     // PAGE NAVIGATION
     // =============================================
-    const allPages = [pageHome, pageExplore, pageHollywood];
+    const allPages = [pageHome, pageFavorites, pageHistory, pageExplore, pageHollywood];
     const allNavLinks = [navHome, navExplore, navMovies, navFavorites, navHistory];
 
     function showPage(targetPage, activeNav = null) {
@@ -106,28 +117,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     navFavorites.addEventListener('click', (e) => {
         e.preventDefault();
-        showPage(pageHome);
-        currentMood = null;
-        sectionTitle.textContent = 'Your Favorites';
-        btnSeeAll.textContent = 'Discover more';
+        showPage(pageFavorites, navFavorites);
         const favs = getFavorites();
         currentPlaylist = favs;
-        renderSongs(favs, songsContainer);
-        emptyState.classList.add('hidden');
-        songsContainer.classList.remove('hidden');
+        if (favs.length === 0) {
+            favEmpty.classList.remove('hidden');
+            favResults.innerHTML = '';
+        } else {
+            favEmpty.classList.add('hidden');
+            renderSongs(favs, favResults);
+        }
     });
 
     navHistory.addEventListener('click', (e) => {
         e.preventDefault();
-        showPage(pageHome);
-        currentMood = null;
-        sectionTitle.textContent = 'Recently Played';
-        btnSeeAll.textContent = 'Clear History';
+        showPage(pageHistory, navHistory);
         const history = getHistory();
         currentPlaylist = history;
-        renderSongs(history, songsContainer);
-        emptyState.classList.add('hidden');
-        songsContainer.classList.remove('hidden');
+        if (history.length === 0) {
+            historyEmpty.classList.remove('hidden');
+            historyResults.innerHTML = '';
+        } else {
+            historyEmpty.classList.add('hidden');
+            renderSongs(history, historyResults);
+        }
+    });
+
+    btnClearHistory.addEventListener('click', () => {
+        localStorage.setItem('moodify_history', '[]');
+        historyResults.innerHTML = '';
+        historyEmpty.classList.remove('hidden');
     });
 
     // =============================================
