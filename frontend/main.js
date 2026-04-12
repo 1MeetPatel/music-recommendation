@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioElement = document.getElementById('audio-element');
     const playerImg = document.getElementById('player-img');
     const playerTitle = document.getElementById('player-title');
+    const playerArtist = document.getElementById('player-artist');
     const playerPlayBtn = document.getElementById('player-play-btn');
     const playerNextBtn = document.getElementById('player-next-btn');
     const playerPrevBtn = document.getElementById('player-prev-btn');
