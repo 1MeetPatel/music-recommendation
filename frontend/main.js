@@ -10,6 +10,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const navHistory = document.getElementById('nav-history');
     const navHome = document.getElementById('nav-home');
     const navExplore = document.getElementById('nav-explore');
+    const dynamicGreeting = document.getElementById('dynamic-greeting');
+
+    // --- Dynamic Greeting Logic ---
+    const updateGreeting = () => {
+        const hours = new Date().getHours();
+        if (hours < 12) {
+            dynamicGreeting.innerHTML = 'Good Morning <span class="text-2xl">☀️</span>';
+        } else if (hours < 18) {
+            dynamicGreeting.innerHTML = 'Good Afternoon <span class="text-2xl">🌤️</span>';
+        } else {
+            dynamicGreeting.innerHTML = 'Good Evening <span class="text-2xl">👋</span>';
+        }
+    };
+    updateGreeting();
     
     // Audio Player Elements
     const miniPlayer = document.getElementById('mini-player');
