@@ -550,4 +550,149 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     audioElement.addEventListener('ended', () => playNext());
+
+    // =============================================
+    // PROFILE MODAL
+    // =============================================
+    const profileAvatarBtn      = document.getElementById('profile-avatar-btn');
+    const profileAvatarImg      = document.getElementById('profile-avatar-img');
+    const profileAvatarIcon     = document.getElementById('profile-avatar-icon');
+    const profileModal          = document.getElementById('profile-modal');
+    const profileModalClose     = document.getElementById('profile-modal-close');
+    const profileModalBackdrop  = document.getElementById('profile-modal-backdrop');
+    const profileModalAvatar    = document.getElementById('profile-modal-avatar');
+    const profileModalAvatarIcon= document.getElementById('profile-modal-avatar-icon');
+    const profilePhotoInput     = document.getElementById('profile-photo-input');
+    const profileUsernameInput  = document.getElementById('profile-username-input');
+    const profileSaveBtn        = document.getElementById('profile-save-btn');
+    const profileSaveSuccess    = document.getElementById('profile-save-success');
+
+    // Tracks the currently staged photo (data URL) before saving
+    let stagedPhoto = null;
+
+    // --- Helper: show image in header avatar ---
+    function setHeaderAvatar(dataUrl) {
+        if (dataUrl) {
+            profileAvatarImg.src = dataUrl;
+            profileAvatarImg.classList.remove('hidden');
+            profileAvatarIcon.classList.add('hidden');
+        } else {
+            profileAvatarImg.src = '';
+            profileAvatarImg.classList.add('hidden');
+            profileAvatarIcon.classList.remove('hidden');
+        }
+    }
+
+    // --- Helper: show image in modal avatar ---
+    function setModalAvatar(dataUrl) {
+        if (dataUrl) {
+            profileModalAvatar.src = dataUrl;
+            profileModalAvatar.classList.remove('hidden');
+            profileModalAvatarIcon.classList.add('hidden');
+        } else {
+            profileModalAvatar.src = '';
+            profileModalAvatar.classList.add('hidden');
+            profileModalAvatarIcon.classList.remove('hidden');
+        }
+    }
+
+    // --- Load saved profile on page load ---
+    function loadProfile() {
+        const savedPhoto    = localStorage.getItem('moodify_profile_photo') || null;
+        const savedUsername = localStorage.getItem('moodify_profile_username') || '';
+
+        setHeaderAvatar(savedPhoto);
+        profileUsernameInput.value = savedUsername;
+
+        // Rebuild greeting with username if saved
+        if (savedUsername) {
+            const greetingEl = document.getElementById('dynamic-greeting');
+            if (greetingEl) {
+                const hours = new Date().getHours();
+                const greetText = hours < 12 ? 'Good Morning' : hours < 18 ? 'Good Afternoon' : 'Good Evening';
+                const emoji     = hours < 12 ? '☀️' : hours < 18 ? '🌤️' : '👋';
+                greetingEl.innerHTML = `${greetText}, ${savedUsername} <span class="text-2xl">${emoji}</span>`;
+            }
+        }
+    }
+
+    loadProfile();
+
+    // --- Open modal ---
+    profileAvatarBtn.addEventListener('click', () => {
+        const savedPhoto = localStorage.getItem('moodify_profile_photo') || null;
+        stagedPhoto = savedPhoto; // reset staged to persisted value
+        setModalAvatar(savedPhoto);
+        profileUsernameInput.value = localStorage.getItem('moodify_profile_username') || '';
+        profileSaveSuccess.classList.add('hidden');
+        profileModal.classList.remove('hidden');
+
+        // Re-trigger slide-in animation
+        const card = profileModal.querySelector('.relative.z-10');
+        card.style.animation = 'none';
+        void card.offsetWidth;
+        card.style.animation = '';
+        setTimeout(() => profileUsernameInput.focus(), 100);
+    });
+
+    // --- Close modal ---
+    function closeProfileModal() {
+        profileModal.classList.add('hidden');
+        stagedPhoto = null;
+        profilePhotoInput.value = ''; // reset file input
+    }
+    profileModalClose.addEventListener('click', closeProfileModal);
+    profileModalBackdrop.addEventListener('click', closeProfileModal);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !profileModal.classList.contains('hidden')) {
+            closeProfileModal();
+        }
+    });
+
+    // --- Photo upload: preview instantly in modal ---
+    profilePhotoInput.addEventListener('change', () => {
+        const file = profilePhotoInput.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            stagedPhoto = ev.target.result;
+            setModalAvatar(stagedPhoto);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // --- Save profile ---
+    profileSaveBtn.addEventListener('click', () => {
+        const username = profileUsernameInput.value.trim();
+
+        // Persist photo
+        if (stagedPhoto) {
+            localStorage.setItem('moodify_profile_photo', stagedPhoto);
+        }
+        setHeaderAvatar(stagedPhoto || localStorage.getItem('moodify_profile_photo') || null);
+
+        // Persist username
+        localStorage.setItem('moodify_profile_username', username);
+
+        // Update greeting
+        const greetingEl = document.getElementById('dynamic-greeting');
+        if (greetingEl) {
+            const hours     = new Date().getHours();
+            const greetText = hours < 12 ? 'Good Morning' : hours < 18 ? 'Good Afternoon' : 'Good Evening';
+            const emoji     = hours < 12 ? '☀️' : hours < 18 ? '🌤️' : '👋';
+            greetingEl.innerHTML = `${greetText}${username ? ', ' + username : ''} <span class="text-2xl">${emoji}</span>`;
+        }
+
+        // Success flash → auto close
+        profileSaveSuccess.classList.remove('hidden');
+        setTimeout(() => {
+            profileSaveSuccess.classList.add('hidden');
+            closeProfileModal();
+        }, 1400);
+    });
+
+    // Enter key in username field triggers save
+    profileUsernameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') profileSaveBtn.click();
+    });
 });
