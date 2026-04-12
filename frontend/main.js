@@ -257,40 +257,46 @@ document.addEventListener('DOMContentLoaded', () => {
     async function playSong(song, cardElement = null) {
         if (!song) return;
         
-        // --- GUARD: Break potential infinite loops & Toggle Play/Pause ---
+        console.log("Play Request for:", song.title, "by:", song.artist);
+
+        // 1. Logic for Toggling Same Song
         if (audioElement.src === song.preview_url) {
-            if (!audioElement.paused) {
-                audioElement.pause();
-                playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
-                return;
-            } else {
+            if (audioElement.paused) {
                 try {
                     await audioElement.play();
                     playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
-                } catch (e) { console.error("Resume failed:", e); }
-                return;
+                } catch (e) {
+                    console.error("Resume failed:", e);
+                }
+            } else {
+                audioElement.pause();
+                playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
             }
+            return;
         }
 
-        console.log("Loading new track:", song.title);
-        
-        // Track index in current playlist
-        currentIndex = currentPlaylist.findIndex(s => s.id === song.id);
-        
-        // Update Mini Player UI Immediately
+        // 2. Clear Existing State Completely
+        try {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+            // Clear previous highlighting
+            if(currentPlayingCard) {
+                currentPlayingCard.classList.remove('ring-2', 'ring-purple-500');
+            }
+        } catch (e) { console.warn("Audio reset warning:", e); }
+
+        // 3. Update UI Immediately with new metadata
         miniPlayer.classList.remove('translate-y-full');
         playerImg.src = song.image || 'https://via.placeholder.com/150';
-        playerTitle.textContent = song.title;
-        playerArtist.textContent = song.artist || 'Unknown Artist';
+        playerTitle.textContent = song.title || 'Unknown Track';
+        playerArtist.textContent = song.artist || 'Unknown Artist'; // Force update artist
         
         // Reset progress
         playerProgress.style.width = '0%';
         playerCurrentTime.textContent = '0:00';
         
-        // Highlight logic
-        if(currentPlayingCard) {
-            currentPlayingCard.classList.remove('ring-2', 'ring-purple-500');
-        }
+        // 4. Update index and highlights
+        currentIndex = currentPlaylist.findIndex(s => s.id === song.id);
         
         if (cardElement) {
             currentPlayingCard = cardElement;
@@ -304,17 +310,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- SAFE TRANSITION ---
+        // 5. Load and Play with Buffer Wait
         try {
-            audioElement.pause();
             audioElement.src = song.preview_url;
-            // No .load() needed, setting .src is enough and safer for promises
             
+            // Wait for enough metadata to be loaded to avoid playback race conditions
+            await new Promise((resolve) => {
+                const onMetadata = () => {
+                    audioElement.removeEventListener('loadedmetadata', onMetadata);
+                    resolve();
+                };
+                audioElement.addEventListener('loadedmetadata', onMetadata);
+                // Safety timeout
+                setTimeout(resolve, 1000);
+            });
+
             await audioElement.play();
             playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
             addToHistory(song);
         } catch (error) {
-            console.warn("Playback prevented or interrupted:", error);
+            console.error("Critical Playback Error:", error);
             playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
         }
     }
