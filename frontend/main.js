@@ -390,14 +390,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg mb-3">
                     <img src="${song.image || 'https://via.placeholder.com/150'}" alt="${song.title}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button class="play-overlay w-12 h-12 bg-purple-500 hover:bg-purple-400 rounded-full flex items-center justify-center text-white shadow-[0_0_15px_rgba(168,85,247,0.6)] transform group-hover:scale-105 transition">
+                        <button class="play-overlay w-12 h-12 bg-[#1DB954] hover:bg-[#1ed760] rounded-full flex items-center justify-center text-black shadow-lg transform group-hover:scale-105 transition">
                             <i class="fa-solid fa-play ml-1 text-lg"></i>
                         </button>
                     </div>
                 </div>
                 <h4 class="font-bold text-sm text-white truncate px-1">${song.title}</h4>
                 <p class="text-xs text-gray-400 truncate px-1 mt-1">${song.artist}</p>
-                <button class="favorite-btn absolute bottom-3 right-3 ${isFav ? 'text-pink-500' : 'text-gray-500'} hover:text-pink-400 transition">
+                <button class="favorite-btn absolute bottom-3 right-3 ${isFav ? 'text-[#1DB954]' : 'text-gray-500'} hover:text-[#1ed760] transition">
                     <i class="fa-solid fa-heart"></i>
                 </button>
             `;
@@ -412,13 +412,13 @@ document.addEventListener('DOMContentLoaded', () => {
             card.querySelector('.favorite-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
                 const favBtn = e.currentTarget;
-                const currentlyFav = favBtn.classList.contains('text-pink-500');
+                const currentlyFav = favBtn.classList.contains('text-[#1DB954]');
                 if (currentlyFav) {
                     removeFavorite(song.id);
-                    favBtn.classList.replace('text-pink-500', 'text-gray-500');
+                    favBtn.classList.replace('text-[#1DB954]', 'text-gray-500');
                 } else {
                     saveFavorite(song);
-                    favBtn.classList.replace('text-gray-500', 'text-pink-500');
+                    favBtn.classList.replace('text-gray-500', 'text-[#1DB954]');
                 }
             });
 
