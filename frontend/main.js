@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const songsContainer   = document.getElementById('songs-container');
     const loader           = document.getElementById('loader');
     const emptyState       = document.getElementById('empty-state');
-    const searchInput      = document.getElementById('search-input');
     const btnSeeAll        = document.getElementById('btn-see-all');
     const sectionTitle     = document.getElementById('section-title');
     const navFavorites     = document.getElementById('nav-favorites');
@@ -202,16 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Home search bar
-    searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && searchInput.value.trim()) {
-            currentMood = null;
-            const query = searchInput.value.trim();
-            sectionTitle.textContent = `Results for "${query}"`;
-            btnSeeAll.textContent = 'Search similar';
-            fetchSongsBySearch(query);
-        }
-    });
+
 
     btnSeeAll.addEventListener('click', () => {
         if (btnSeeAll.textContent === 'Clear History') {
