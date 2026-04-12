@@ -256,22 +256,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function playSong(song, cardElement = null) {
         if (!song) return;
-        console.log("Playing:", song.title, "Source:", song.preview_url);
+        
+        // --- GUARD: Break potential infinite loops & Toggle Play/Pause ---
+        if (audioElement.src === song.preview_url) {
+            if (!audioElement.paused) {
+                // If it's the same song and playing, PAUSE it (toggle behavior)
+                audioElement.pause();
+                playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
+                return;
+            } else {
+                // If it's the same song and paused, RESUME it
+                audioElement.play();
+                playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
+                return;
+            }
+        }
+
+        console.log("Playing new track:", song.title);
         
         // Track index in current playlist
         currentIndex = currentPlaylist.findIndex(s => s.id === song.id);
         
-        // Update Mini Player UI Immediately (before play attempt)
+        // Update Mini Player UI Immediately
         miniPlayer.classList.remove('translate-y-full');
         playerImg.src = song.image || 'https://via.placeholder.com/150';
         playerTitle.textContent = song.title;
         playerArtist.textContent = song.artist || 'Unknown Artist';
         
-        // Reset progress bar
+        // Reset progress
         playerProgress.style.width = '0%';
         playerCurrentTime.textContent = '0:00';
         
-        // Visual indicator on card
+        // Highlight logic
         if(currentPlayingCard) {
             currentPlayingCard.classList.remove('ring-2', 'ring-purple-500');
         }
@@ -280,35 +296,29 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPlayingCard = cardElement;
             cardElement.classList.add('ring-2', 'ring-purple-500');
         } else {
-            // If playing from next/prev, try to find the card in DOM to highlight it
             const allCards = document.querySelectorAll('.song-card');
-            // Since cards are rendered in order, current index usually matches
             if (currentIndex !== -1 && allCards[currentIndex]) {
                 currentPlayingCard = allCards[currentIndex];
                 currentPlayingCard.classList.add('ring-2', 'ring-purple-500');
                 currentPlayingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            } else {
-                currentPlayingCard = null;
             }
         }
 
-        // Load and Play Audio
+        // --- SAFE LOADING ---
+        audioElement.pause();
         audioElement.src = song.preview_url;
+        audioElement.load(); // Forces fresh load
         
-        // Modern browsers return a promise from .play()
         const playPromise = audioElement.play();
-        
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
             }).catch(error => {
-                console.error("Playback failed (likely autoplay policy):", error);
+                console.warn("Playback prevented:", error);
                 playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
-                // Note: The UI stays up so the user can click the play button manually
             });
         }
         
-        // Add to history
         addToHistory(song);
     }
 
