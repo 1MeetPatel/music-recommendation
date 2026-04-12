@@ -654,6 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileUsernameInput  = document.getElementById('profile-username-input');
     const profileSaveBtn        = document.getElementById('profile-save-btn');
     const profileSaveSuccess    = document.getElementById('profile-save-success');
+    const profileRemovePhotoBtn = document.getElementById('profile-remove-photo-btn');
 
     // Tracks the currently staged photo (data URL) before saving
     let stagedPhoto = null;
@@ -677,10 +678,12 @@ document.addEventListener('DOMContentLoaded', () => {
             profileModalAvatar.src = dataUrl;
             profileModalAvatar.classList.remove('hidden');
             profileModalAvatarIcon.classList.add('hidden');
+            profileRemovePhotoBtn.classList.remove('hidden');
         } else {
             profileModalAvatar.src = '';
             profileModalAvatar.classList.add('hidden');
             profileModalAvatarIcon.classList.remove('hidden');
+            profileRemovePhotoBtn.classList.add('hidden');
         }
     }
 
@@ -711,9 +714,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedPhoto = localStorage.getItem('moodify_profile_photo') || null;
         stagedPhoto = savedPhoto; // reset staged to persisted value
         setModalAvatar(savedPhoto);
-        profileUsernameInput.value = localStorage.getItem('moodify_profile_username') || '';
+        const savedUsername = localStorage.getItem('moodify_profile_username') || '';
         profileSaveSuccess.classList.add('hidden');
         profileModal.classList.remove('hidden');
+        
+        // Ensure "Remove Photo" button shows if there's a staged/persisted photo
+        if (stagedPhoto) profileRemovePhotoBtn.classList.remove('hidden');
+        else profileRemovePhotoBtn.classList.add('hidden');
 
         // Re-trigger slide-in animation
         const card = profileModal.querySelector('.relative.z-10');
@@ -753,11 +760,9 @@ document.addEventListener('DOMContentLoaded', () => {
     profileSaveBtn.addEventListener('click', () => {
         const username = profileUsernameInput.value.trim();
 
-        // Persist photo
-        if (stagedPhoto) {
-            localStorage.setItem('moodify_profile_photo', stagedPhoto);
-        }
-        setHeaderAvatar(stagedPhoto || localStorage.getItem('moodify_profile_photo') || null);
+        // Persist photo (stagedPhoto can be null if removed)
+        localStorage.setItem('moodify_profile_photo', stagedPhoto || '');
+        setHeaderAvatar(stagedPhoto);
 
         // Persist username
         localStorage.setItem('moodify_profile_username', username);
@@ -784,5 +789,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') profileSaveBtn.click();
     });
 
-});
+    profileRemovePhotoBtn.addEventListener('click', () => {
+        stagedPhoto = null;
+        setModalAvatar(null);
+    });
 
+});

@@ -355,7 +355,12 @@
                 <input type="file" id="profile-photo-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer rounded-full" title="Upload Photo">
             </div>
 
-            <p class="text-xs text-gray-500 mb-6">Click the photo to upload from your PC</p>
+            <div class="flex flex-col items-center mb-6">
+                <button id="profile-remove-photo-btn" class="text-[10px] uppercase font-bold text-gray-400 hover:text-red-400 transition-colors hidden">
+                    <i class="fa-solid fa-trash-can mr-1"></i> Remove Photo
+                </button>
+                <p class="text-xs text-gray-500 mt-2">Click the photo to upload from your PC</p>
+            </div>
 
             <!-- Username Field -->
             <div class="w-full mb-6">
