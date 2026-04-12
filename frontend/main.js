@@ -695,4 +695,6 @@ document.addEventListener('DOMContentLoaded', () => {
     profileUsernameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') profileSaveBtn.click();
     });
+
 });
+

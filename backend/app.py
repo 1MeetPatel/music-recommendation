@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 import logging
+import os
 from spotify_service import SpotifyService
 
 # Configure basic logging
@@ -9,9 +10,16 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 load_dotenv() # Load variables from .env
 
-app = Flask(__name__)
+# Point Flask to serve the frontend folder
+FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend')
+
+app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 # Enable CORS to allow the frontend to access the API
 CORS(app)
+
+@app.route('/')
+def serve_frontend():
+    return send_from_directory(FRONTEND_DIR, 'index.html')
 
 spotify_service = SpotifyService()
 
@@ -47,3 +55,4 @@ def search():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
