@@ -23,6 +23,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const exploreResults      = document.getElementById('explore-results');
     const exploreChips        = document.querySelectorAll('.explore-chip');
 
+    // =============================================
+    // CUSTOM CURSOR LOGIC
+    // =============================================
+    const cursor = document.getElementById('custom-cursor');
+    const aura = document.getElementById('cursor-aura');
+    let mouseX = 0, mouseY = 0;
+    let cursorX = 0, cursorY = 0;
+    let auraX = 0, auraY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (cursor.style.display === 'none' || !cursor.style.display) {
+            cursor.style.display = 'block';
+            aura.style.display = 'block';
+        }
+    });
+
+    const animateCursor = () => {
+        cursorX += (mouseX - cursorX) * 0.25;
+        cursorY += (mouseY - cursorY) * 0.25;
+        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
+
+        auraX += (mouseX - auraX) * 0.12;
+        auraY += (mouseY - auraY) * 0.12;
+        aura.style.transform = `translate(${auraX}px, ${auraY}px) translate(-50%, -50%)`;
+
+        requestAnimationFrame(animateCursor);
+    };
+    animateCursor();
+
+    const handleMouseEnter = () => document.body.classList.add('cursor-hover');
+    const handleMouseLeave = () => document.body.classList.remove('cursor-hover');
+
+    const refreshCursorListeners = () => {
+        const interactables = document.querySelectorAll('a, button, .mood-card, .song-card, .playlist-card, .cursor-pointer, #player-progress');
+        interactables.forEach(el => {
+            el.removeEventListener('mouseenter', handleMouseEnter);
+            el.removeEventListener('mouseleave', handleMouseLeave);
+            el.addEventListener('mouseenter', handleMouseEnter);
+            el.addEventListener('mouseleave', handleMouseLeave);
+        });
+    };
+    refreshCursorListeners();
+
     // Hollywood Songs page
     const pageHollywood = document.getElementById('page-hollywood');
     const hwLoader      = document.getElementById('hw-loader');
@@ -424,6 +469,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             container.appendChild(card);
         });
+
+        // Re-attach cursor hover listeners for new cards
+        refreshCursorListeners();
     }
 
     // =============================================

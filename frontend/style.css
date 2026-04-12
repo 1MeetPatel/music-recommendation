@@ -92,6 +92,52 @@ body {
 }
 
 /* Hide scrollbar completely but allow scrolling for songs container */
+/* Custom Cursor Styling */
+#custom-cursor, #cursor-aura {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+    display: none; /* Hidden by default until mouse moves */
+}
+
+#custom-cursor {
+    width: 8px;
+    height: 8px;
+    background: var(--spotify-green);
+    transition: width 0.3s, height 0.3s;
+}
+
+#cursor-aura {
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid var(--spotify-green);
+    opacity: 0.4;
+    transition: width 0.3s, height 0.3s, opacity 0.3s, background-color 0.3s;
+}
+
+/* Hover States (triggered via body class in JS) */
+body.cursor-hover #custom-cursor {
+    width: 4px;
+    height: 4px;
+}
+
+body.cursor-hover #cursor-aura {
+    width: 55px;
+    height: 55px;
+    background: rgba(29, 185, 84, 0.1);
+    opacity: 1;
+}
+
+/* Hide default cursor for standard interactive elements */
+a, button, .mood-card, .song-card, .playlist-card, #player-progress, .cursor-pointer {
+    cursor: none !important;
+}
+
 #songs-container {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
