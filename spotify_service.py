@@ -20,16 +20,19 @@ class SpotifyService:
         # We rename the service logic to use iTunes internally to bypass Spotify's Premium requirement
         self.api_base_url = "https://itunes.apple.com/search"
 
-    def recommend_songs(self, mood):
+    def recommend_songs(self, mood, limit=15):
         # Validate mood and get keyword
         keyword = MOOD_MAP.get(mood.lower())
         if not keyword:
             return {"error": f"Invalid mood. Supported moods: {', '.join(MOOD_MAP.keys())}", "songs": []}
 
+        return self.search_songs(keyword, limit)
+
+    def search_songs(self, query, limit=15):
         params = {
-            "term": keyword,
+            "term": query,
             "entity": "song",
-            "limit": 25
+            "limit": 50 # Fetch more to filter down
         }
 
         try:
@@ -51,13 +54,14 @@ class SpotifyService:
                         image_url = image_url.replace("100x100bb", "600x600bb")
                         
                     valid_songs.append({
+                        "id": str(track.get("trackId")),
                         "title": track.get("trackName", "Unknown"),
                         "artist": track.get("artistName", "Unknown"),
                         "image": image_url,
                         "preview_url": preview_url
                     })
                     
-                    if len(valid_songs) >= 15:
+                    if len(valid_songs) >= limit:
                         break
                         
             return {"songs": valid_songs}

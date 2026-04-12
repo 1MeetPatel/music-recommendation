@@ -3,6 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const songsContainer = document.getElementById('songs-container');
     const loader = document.getElementById('loader');
     const emptyState = document.getElementById('empty-state');
+    const searchInput = document.getElementById('search-input');
+    const btnSeeAll = document.getElementById('btn-see-all');
+    const sectionTitle = document.getElementById('section-title');
+    const navFavorites = document.getElementById('nav-favorites');
+    const navHistory = document.getElementById('nav-history');
+    const navHome = document.getElementById('nav-home');
+    const navExplore = document.getElementById('nav-explore');
     
     // Audio Player Elements
     const miniPlayer = document.getElementById('mini-player');
@@ -16,6 +23,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerCloseBtn = document.getElementById('player-close-btn');
 
     let currentPlayingCard = null;
+    let currentMood = null;
+
+    // --- State Helpers ---
+    const getFavorites = () => JSON.parse(localStorage.getItem('moodify_favorites')) || [];
+    const saveFavorite = (song) => {
+        const favs = getFavorites();
+        if (!favs.find(s => s.id === song.id)) {
+            favs.push(song);
+            localStorage.setItem('moodify_favorites', JSON.stringify(favs));
+        }
+    };
+    const removeFavorite = (songId) => {
+        const favs = getFavorites().filter(s => s.id !== songId);
+        localStorage.setItem('moodify_favorites', JSON.stringify(favs));
+    };
+    const getHistory = () => JSON.parse(localStorage.getItem('moodify_history')) || [];
+    const addToHistory = (song) => {
+        let history = getHistory();
+        // Remove if exists to move to top
+        history = history.filter(s => s.id !== song.id);
+        history.unshift(song);
+        if (history.length > 50) history.pop();
+        localStorage.setItem('moodify_history', JSON.stringify(history));
+    };
 
     // Handle Mood Selection
     moodCards.forEach(card => {
@@ -29,6 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.classList.add('active-mood', card.dataset.border, card.dataset.glow, 'scale-105', 'bg-gray-700/80');
             
             const mood = card.dataset.mood;
+            currentMood = mood;
+            sectionTitle.textContent = `${mood.charAt(0).toUpperCase() + mood.slice(1)} Hollywood Picks`;
+            btnSeeAll.textContent = "See all for this mood";
             fetchSongsByMood(mood);
         });
     });
@@ -38,43 +72,123 @@ document.addEventListener('DOMContentLoaded', () => {
     playlistCards.forEach(card => {
         card.addEventListener('click', () => {
             const mood = card.dataset.mood;
+            currentMood = mood;
+            sectionTitle.textContent = `${mood.charAt(0).toUpperCase() + mood.slice(1)} Hollywood Hits`;
+            btnSeeAll.textContent = "See all for this mood";
             fetchSongsByMood(mood);
             document.getElementById('songs-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
     });
 
-    async function fetchSongsByMood(mood) {
-        // UI State update
-        emptyState.classList.add('hidden');
-        songsContainer.classList.add('hidden');
-        loader.classList.remove('hidden');
-        songsContainer.innerHTML = '';
+    // Handle Search
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && searchInput.value.trim()) {
+            currentMood = null;
+            const query = searchInput.value.trim();
+            sectionTitle.textContent = `Results for "${query}"`;
+            btnSeeAll.textContent = "Search similar";
+            fetchSongsBySearch(query);
+        }
+    });
 
+    // Handle Navigation
+    navFavorites.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentMood = null;
+        sectionTitle.textContent = "Your Favorites";
+        btnSeeAll.textContent = "Discover more";
+        renderSongs(getFavorites());
+        emptyState.classList.add('hidden');
+        songsContainer.classList.remove('hidden');
+    });
+
+    navHistory.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentMood = null;
+        sectionTitle.textContent = "Recently Played";
+        btnSeeAll.textContent = "Clear History";
+        renderSongs(getHistory());
+        emptyState.classList.add('hidden');
+        songsContainer.classList.remove('hidden');
+    });
+
+    btnSeeAll.addEventListener('click', () => {
+        if (btnSeeAll.textContent === "Clear History") {
+            localStorage.setItem('moodify_history', '[]');
+            renderSongs([]);
+            return;
+        }
+        
+        if (currentMood) {
+            fetchSongsByMood(currentMood, 50); // Expand to 50 songs
+            songsContainer.classList.remove('flex', 'space-x-6', 'overflow-x-auto');
+            songsContainer.classList.add('grid', 'grid-cols-2', 'md:grid-cols-4', 'lg:grid-cols-5', 'gap-6', 'overflow-y-visible');
+        } else {
+            // Default expansion
+            fetchSongsBySearch("top english hits", 40);
+        }
+    });
+
+    // Reset view for Home
+    const resetView = () => {
+        songsContainer.classList.add('flex', 'space-x-6', 'overflow-x-auto');
+        songsContainer.classList.remove('grid', 'grid-cols-2', 'md:grid-cols-4', 'lg:grid-cols-5', 'gap-6', 'overflow-y-visible');
+    };
+
+    async function fetchSongsByMood(mood, limit = 15) {
+        resetView();
+        uiLoadState();
         try {
-            const response = await fetch(`http://localhost:5000/api/recommend?mood=${mood}`);
+            const response = await fetch(`http://localhost:5000/api/recommend?mood=${mood}&limit=${limit}`);
             if (!response.ok) throw new Error('API Request Failed');
-            
             const data = await response.json();
-            
-            if (data.songs && data.songs.length > 0) {
-                renderSongs(data.songs);
-                loader.classList.add('hidden');
-                songsContainer.classList.remove('hidden');
-            } else {
-                showError("No songs found for this mood with previews.");
-            }
+            handleSongsResponse(data);
         } catch (error) {
             console.error(error);
             showError("Failed to fetch songs. Is the backend running?");
         }
     }
 
+    async function fetchSongsBySearch(query, limit = 15) {
+        resetView();
+        uiLoadState();
+        try {
+            const response = await fetch(`http://localhost:5000/api/search?q=${query}&limit=${limit}`);
+            if (!response.ok) throw new Error('API Request Failed');
+            const data = await response.json();
+            handleSongsResponse(data);
+        } catch (error) {
+            console.error(error);
+            showError("Search failed.");
+        }
+    }
+
+    function uiLoadState() {
+        emptyState.classList.add('hidden');
+        songsContainer.classList.add('hidden');
+        loader.classList.remove('hidden');
+        songsContainer.innerHTML = '';
+    }
+
+    function handleSongsResponse(data) {
+        if (data.songs && data.songs.length > 0) {
+            renderSongs(data.songs);
+            loader.classList.add('hidden');
+            songsContainer.classList.remove('hidden');
+        } else {
+            showError("No songs found.");
+        }
+    }
+
     function renderSongs(songs) {
         songsContainer.innerHTML = '';
+        const favorites = getFavorites();
         
         songs.forEach((song, index) => {
             // Guard against missing previews
             if (!song.preview_url) return;
+
+            const isFav = favorites.find(s => s.id === song.id);
 
             const card = document.createElement('div');
             card.className = 'song-card flex-shrink-0 bg-gray-800/40 rounded-xl p-3 shrink-0 hover:bg-gray-700/50 transition-all cursor-pointer group relative';
@@ -89,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <h4 class="font-bold text-sm text-white truncate px-1">${song.title}</h4>
                 <p class="text-xs text-gray-400 truncate px-1 mt-1">${song.artist}</p>
-                <button class="absolute bottom-3 right-3 text-gray-500 hover:text-pink-500 transition">
+                <button class="favorite-btn absolute bottom-3 right-3 ${isFav ? 'text-pink-500' : 'text-gray-500'} hover:text-pink-400 transition">
                     <i class="fa-solid fa-heart"></i>
                 </button>
             `;
@@ -106,6 +220,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 playSong(song, card);
             });
 
+            // Favorite Button Listener
+            const favBtn = card.querySelector('.favorite-btn');
+            favBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const currentlyFav = favBtn.classList.contains('text-pink-500');
+                if (currentlyFav) {
+                    removeFavorite(song.id);
+                    favBtn.classList.replace('text-pink-500', 'text-gray-500');
+                } else {
+                    saveFavorite(song);
+                    favBtn.classList.replace('text-gray-500', 'text-pink-500');
+                }
+            });
+
             songsContainer.appendChild(card);
         });
     }
@@ -119,6 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Audio Player Logic ---
 
     function playSong(song, cardElement) {
+        // Add to history
+        addToHistory(song);
+
         // Update Mini Player UI
         playerImg.src = song.image || 'https://via.placeholder.com/150';
         playerTitle.textContent = song.title;
