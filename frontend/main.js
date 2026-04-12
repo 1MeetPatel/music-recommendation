@@ -254,25 +254,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Audio Player Logic ---
 
-    function playSong(song, cardElement = null) {
+    async function playSong(song, cardElement = null) {
         if (!song) return;
         
         // --- GUARD: Break potential infinite loops & Toggle Play/Pause ---
         if (audioElement.src === song.preview_url) {
             if (!audioElement.paused) {
-                // If it's the same song and playing, PAUSE it (toggle behavior)
                 audioElement.pause();
                 playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
                 return;
             } else {
-                // If it's the same song and paused, RESUME it
-                audioElement.play();
-                playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
+                try {
+                    await audioElement.play();
+                    playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
+                } catch (e) { console.error("Resume failed:", e); }
                 return;
             }
         }
 
-        console.log("Playing new track:", song.title);
+        console.log("Loading new track:", song.title);
         
         // Track index in current playlist
         currentIndex = currentPlaylist.findIndex(s => s.id === song.id);
@@ -304,22 +304,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- SAFE LOADING ---
-        audioElement.pause();
-        audioElement.src = song.preview_url;
-        audioElement.load(); // Forces fresh load
-        
-        const playPromise = audioElement.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
-            }).catch(error => {
-                console.warn("Playback prevented:", error);
-                playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
-            });
+        // --- SAFE TRANSITION ---
+        try {
+            audioElement.pause();
+            audioElement.src = song.preview_url;
+            // No .load() needed, setting .src is enough and safer for promises
+            
+            await audioElement.play();
+            playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
+            addToHistory(song);
+        } catch (error) {
+            console.warn("Playback prevented or interrupted:", error);
+            playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
         }
-        
-        addToHistory(song);
     }
 
     function playNext() {
