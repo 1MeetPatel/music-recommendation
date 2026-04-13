@@ -1,4 +1,4 @@
-# 🎵 Moodify — AI-Powered Mood-Based Music Player
+#  Moodify — AI-Powered Mood-Based Music Player
 
 <div align="center">
 
@@ -14,13 +14,13 @@
 
 ---
 
-## 📸 Overview
+##  Overview
 
 Moodify is a full-stack music discovery web app with a Spotify-inspired dark UI. Pick a mood, and Moodify fetches real songs from the iTunes Search API. The more you listen, the smarter it gets — using content-based filtering and collaborative filtering to personalise your recommendations.
 
 ---
 
-## ✨ Features
+##  Features
 
 | Feature | Description |
 |---|---|
@@ -38,7 +38,7 @@ Moodify is a full-stack music discovery web app with a Spotify-inspired dark UI.
 
 ---
 
-## 🤖 Machine Learning — How It Works
+##  Machine Learning — How It Works
 
 Moodify uses **two real ML algorithms** implemented in pure Python (no ML libraries required):
 
@@ -119,7 +119,7 @@ music-recommendation/
 
 ---
 
-## 🔌 API Endpoints
+##  API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -160,7 +160,7 @@ music-recommendation/
 
 ---
 
-## 🎵 Supported Moods
+##  Supported Moods
 
 | Mood | iTunes Search Keyword |
 |---|---|
@@ -212,7 +212,7 @@ The app will be available at **http://localhost:5000**
 
 ---
 
-## 🧠 How Smart Mode Works (End to End)
+##  How Smart Mode Works (End to End)
 
 ```
 User opens app
@@ -251,7 +251,7 @@ GET /api/because-you-liked?artist=Coldplay
 
 ---
 
-## 🔮 Possible Future Enhancements
+##  Possible Future Enhancements
 
 - [ ] Spotify OAuth integration for real streaming
 - [ ] Mood detection via typed text (NLP sentiment analysis)
@@ -261,13 +261,13 @@ GET /api/because-you-liked?artist=Coldplay
 
 ---
 
-## 📝 License
+##  License
 
 This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-## 🙏 Acknowledgements
+##  Acknowledgements
 
 - [iTunes Search API](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/) — free music metadata and 30-second previews
 - [Flask](https://flask.palletsprojects.com/) — lightweight Python web framework
