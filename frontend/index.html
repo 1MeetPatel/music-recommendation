@@ -71,7 +71,15 @@
 
             <!-- Mood Selection -->
             <section class="mb-12">
-                <h3 class="text-xl font-bold mb-6 flex items-center text-white"><i class="fa-solid fa-masks-theater text-[#1DB954] mr-3"></i> How are you feeling today?</h3>
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold flex items-center text-white"><i class="fa-solid fa-masks-theater text-[#1DB954] mr-3"></i> How are you feeling today?</h3>
+                    <!-- Smart Mode Toggle -->
+                    <button id="smart-mode-toggle" title="Toggle AI-powered recommendations" class="flex items-center space-x-2 px-4 py-1.5 rounded-full border border-gray-700/50 bg-gray-800/60 text-gray-400 text-xs font-semibold hover:border-[#1DB954]/60 transition-all select-none">
+                        <span id="smart-mode-icon" class="text-base">✨</span>
+                        <span id="smart-mode-label">Smart Mode: OFF</span>
+                        <span id="smart-mode-dot" class="w-2 h-2 rounded-full bg-gray-600 ml-1"></span>
+                    </button>
+                </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="mood-container">
                     
                     <div class="mood-card bg-gray-800/60 hover:bg-gray-700/80 rounded-2xl p-4 cursor-pointer backdrop-blur-md border border-gray-700/50 flex flex-col items-center justify-center text-center transition-all duration-300" data-mood="happy" data-glow="shadow-[0_0_25px_rgba(250,204,21,0.5)]" data-border="border-yellow-500/50">
@@ -142,6 +150,38 @@
                 <div id="songs-container" class="hidden flex space-x-6 overflow-x-auto pb-6 pt-2 custom-scroll scroll-smooth snap-x">
                     <!-- Javascript will inject song cards here -->
                 </div>
+            </section>
+
+            <!-- ===== FOR YOU (Content-Based ML) ===== -->
+            <section id="section-for-you" class="mb-12 hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <h3 class="text-xl font-bold flex items-center text-white">
+                        <span class="mr-2 text-lg">🎯</span> Picked For You
+                        <span class="ml-3 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1DB954]/15 text-[#1DB954] border border-[#1DB954]/30">AI</span>
+                    </h3>
+                    <span class="text-xs text-gray-500">Based on your taste</span>
+                </div>
+                <div id="for-you-loader" class="hidden flex items-center space-x-3 py-6">
+                    <div class="w-7 h-7 border-3 border-[#1DB954]/30 border-t-[#1DB954] rounded-full animate-spin border-[3px]"></div>
+                    <p class="text-sm text-gray-400 animate-pulse">Building your personalised mix...</p>
+                </div>
+                <div id="for-you-container" class="flex space-x-5 overflow-x-auto pb-4 custom-scroll scroll-smooth"></div>
+            </section>
+
+            <!-- ===== BECAUSE YOU LIKED (Collaborative Filtering) ===== -->
+            <section id="section-because" class="mb-12 hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <h3 id="because-title" class="text-xl font-bold flex items-center text-white">
+                        <span class="mr-2 text-lg">💡</span> Because You Like...
+                        <span class="ml-3 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">CF</span>
+                    </h3>
+                    <span class="text-xs text-gray-500">Listeners like you also enjoy</span>
+                </div>
+                <div id="because-loader" class="hidden flex items-center space-x-3 py-6">
+                    <div class="w-7 h-7 border-[3px] border-purple-500/30 border-t-purple-400 rounded-full animate-spin"></div>
+                    <p class="text-sm text-gray-400 animate-pulse">Finding similar artists...</p>
+                </div>
+                <div id="because-container" class="flex space-x-5 overflow-x-auto pb-4 custom-scroll scroll-smooth"></div>
             </section>
 
             <!-- Playlists -->

@@ -138,10 +138,61 @@ a, button, .mood-card, .song-card, .playlist-card, #player-progress, .cursor-poi
     cursor: none !important;
 }
 
-#songs-container {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+#songs-container,
+#for-you-container,
+#because-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
-#songs-container::-webkit-scrollbar {
+#songs-container::-webkit-scrollbar,
+#for-you-container::-webkit-scrollbar,
+#because-container::-webkit-scrollbar {
     display: none;
+}
+
+/* ─────────────────────────────────────────────
+   ML Reason Badge — floats at bottom of artwork
+   ───────────────────────────────────────────── */
+.ml-reason-badge {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #1DB954;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(29, 185, 84, 0.3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    animation: badgeFadeIn 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes badgeFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* Smart Mode toggle active glow */
+#smart-mode-toggle.text-\[#1DB954\] {
+    box-shadow: 0 0 12px rgba(29, 185, 84, 0.2);
+}
+
+/* Section slide-in animation for ML sections */
+#section-for-you,
+#section-because {
+    animation: sectionSlideIn 0.4s ease;
+}
+
+@keyframes sectionSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
 }

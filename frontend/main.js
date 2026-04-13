@@ -15,6 +15,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const navMovies        = document.getElementById('nav-movies');
     const dynamicGreeting  = document.getElementById('dynamic-greeting');
 
+    // =============================================
+    // ML / SMART MODE REFERENCES
+    // =============================================
+    const smartModeToggle  = document.getElementById('smart-mode-toggle');
+    const smartModeLabel   = document.getElementById('smart-mode-label');
+    const smartModeDot     = document.getElementById('smart-mode-dot');
+    const sectionForYou    = document.getElementById('section-for-you');
+    const forYouLoader     = document.getElementById('for-you-loader');
+    const forYouContainer  = document.getElementById('for-you-container');
+    const sectionBecause   = document.getElementById('section-because');
+    const becauseTitle     = document.getElementById('because-title');
+    const becauseLoader    = document.getElementById('because-loader');
+    const becauseContainer = document.getElementById('because-container');
+
+    // Smart Mode state (auto-enables when user has enough data)
+    let smartModeOn = false;
+
+    function setSmartMode(on) {
+        smartModeOn = on;
+        if (on) {
+            smartModeLabel.textContent = 'Smart Mode: ON';
+            smartModeDot.classList.replace('bg-gray-600', 'bg-[#1DB954]');
+            smartModeToggle.classList.add('border-[#1DB954]/60', 'text-[#1DB954]');
+            smartModeToggle.classList.remove('border-gray-700/50', 'text-gray-400');
+        } else {
+            smartModeLabel.textContent = 'Smart Mode: OFF';
+            smartModeDot.classList.replace('bg-[#1DB954]', 'bg-gray-600');
+            smartModeToggle.classList.remove('border-[#1DB954]/60', 'text-[#1DB954]');
+            smartModeToggle.classList.add('border-gray-700/50', 'text-gray-400');
+        }
+    }
+
+    // Auto-enable Smart Mode if user has enough history
+    function checkAutoSmartMode() {
+        const favs    = getFavorites();
+        const history = getHistory();
+        if (favs.length >= 3 || history.length >= 5) {
+            setSmartMode(true);
+        }
+    }
+
+    smartModeToggle.addEventListener('click', () => setSmartMode(!smartModeOn));
+
     // Explore page
     const pageExplore         = document.getElementById('page-explore');
     const exploreSearchInput  = document.getElementById('explore-search-input');
@@ -232,7 +275,12 @@ document.addEventListener('DOMContentLoaded', () => {
             currentMood = mood;
             sectionTitle.textContent = `${mood.charAt(0).toUpperCase() + mood.slice(1)} Hollywood Picks`;
             btnSeeAll.textContent = 'See all for this mood';
-            fetchSongsByMood(mood);
+
+            if (smartModeOn) {
+                fetchSmartRecommend(mood);
+            } else {
+                fetchSongsByMood(mood);
+            }
         });
     });
 
@@ -382,6 +430,98 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ─── Content-Based Smart Recommend ───────────────────────────────────────
+    async function fetchSmartRecommend(mood, limit = 15) {
+        resetView();
+        uiLoadState();
+        sectionTitle.textContent = `✨ Smart Mix · ${mood.charAt(0).toUpperCase() + mood.slice(1)}`;
+
+        const favorites = getFavorites();
+        const history   = getHistory();
+
+        try {
+            const res = await fetch('http://localhost:5000/api/smart-recommend', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ mood, favorites, history, limit }),
+            });
+            if (!res.ok) throw new Error('Smart recommend failed');
+            const data = await res.json();
+            handleSongsResponse(data);
+
+            // After loading mood songs, also fetch the For You section
+            fetchForYouSection(mood, favorites, history);
+        } catch (err) {
+            console.error(err);
+            // Gracefully fall back to normal recommend
+            fetchSongsByMood(mood, limit);
+        }
+    }
+
+    // ─── For You Section (personalized horizontal row) ────────────────────────
+    async function fetchForYouSection(mood, favorites, history) {
+        if (!favorites.length && !history.length) return;
+
+        sectionForYou.classList.remove('hidden');
+        forYouLoader.classList.remove('hidden');
+        forYouContainer.innerHTML = '';
+
+        try {
+            const res = await fetch('http://localhost:5000/api/smart-recommend', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ mood, favorites, history, limit: 20 }),
+            });
+            const data = await res.json();
+            forYouLoader.classList.add('hidden');
+
+            const songs = (data.songs || []).filter(s => s.ml_badge);
+            if (songs.length > 0) {
+                renderSongs(songs, forYouContainer, true);
+            } else {
+                sectionForYou.classList.add('hidden');
+            }
+        } catch (err) {
+            forYouLoader.classList.add('hidden');
+            sectionForYou.classList.add('hidden');
+        }
+    }
+
+    // ─── Because You Liked Section (Collaborative Filtering) ─────────────────
+    async function fetchBecauseYouLiked(artist, genre) {
+        const history = getHistory();
+        if (history.length < 2) return;  // Not enough data
+
+        sectionBecause.classList.remove('hidden');
+        becauseLoader.classList.remove('hidden');
+        becauseContainer.innerHTML = '';
+
+        // Update title
+        const titleEl = becauseTitle;
+        titleEl.innerHTML = `<span class="mr-2 text-lg">💡</span> Because You Like <span class="text-[#1DB954] ml-1">${artist}</span><span class="ml-3 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">CF</span>`;
+
+        try {
+            const params = new URLSearchParams({
+                artist,
+                genre:   genre || '',
+                limit:   15,
+                history: JSON.stringify(history.slice(0, 30)),  // last 30 plays
+            });
+            const res  = await fetch(`http://localhost:5000/api/because-you-liked?${params}`);
+            const data = await res.json();
+            becauseLoader.classList.add('hidden');
+
+            if (data.songs && data.songs.length > 0) {
+                renderSongs(data.songs, becauseContainer, true);
+            } else {
+                sectionBecause.classList.add('hidden');
+            }
+        } catch (err) {
+            becauseLoader.classList.add('hidden');
+            sectionBecause.classList.add('hidden');
+        }
+    }
+
     async function fetchSongsBySearch(query, limit = 15) {
         resetView();
         uiLoadState();
@@ -422,14 +562,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // =============================================
     // RENDER SONGS (shared by all pages)
+    // showReason = true → shows ML badge chip on card
     // =============================================
-    function renderSongs(songs, container) {
+    function renderSongs(songs, container, showReason = false) {
         container.innerHTML = '';
         const favorites = getFavorites();
 
         songs.forEach((song) => {
             if (!song.preview_url) return;
             const isFav = favorites.find(s => s.id === song.id);
+
+            // Build optional ML reason badge
+            const reasonBadge = (showReason && song.reason)
+                ? `<div class="ml-reason-badge">${song.reason}</div>`
+                : '';
 
             const card = document.createElement('div');
             card.className = 'song-card flex-shrink-0 bg-gray-800/40 rounded-xl p-3 hover:bg-gray-700/50 transition-all cursor-pointer group relative';
@@ -441,6 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <i class="fa-solid fa-play ml-1 text-lg"></i>
                         </button>
                     </div>
+                    ${reasonBadge}
                 </div>
                 <h4 class="font-bold text-sm text-white truncate px-1">${song.title}</h4>
                 <p class="text-xs text-gray-400 truncate px-1 mt-1">${song.artist}</p>
@@ -545,6 +692,13 @@ document.addEventListener('DOMContentLoaded', () => {
             addToHistory(song);
             currentPlayingSong = song;
             updatePlayerFavoriteUI(song);
+
+            // Trigger Collaborative Filtering "Because You Liked" row
+            // Only on home page and only if user has listen history
+            const isHomePage = !pageHome.classList.contains('hidden');
+            if (isHomePage) {
+                fetchBecauseYouLiked(song.artist, song.genre || '');
+            }
         } catch (err) {
             console.error('Playback error:', err);
             playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
@@ -708,6 +862,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     loadProfile();
+
+    // Auto-enable Smart Mode if user already has data
+    checkAutoSmartMode();
 
     // --- Open modal ---
     profileAvatarBtn.addEventListener('click', () => {
