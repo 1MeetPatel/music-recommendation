@@ -7,6 +7,7 @@ import json
 
 from spotify_service import SpotifyService
 from recommendation_engine import ContentBasedRecommender, CollaborativeRecommender
+from youtube_service import search_youtube_id
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -190,6 +191,44 @@ def because_you_liked():
         "seed_artist": seed_artist,
         "reason":      reason_label,
     }), 200
+
+
+# ---------------------------------------------------------------------------
+# YouTube full-track playback endpoint
+# ---------------------------------------------------------------------------
+
+@app.route('/api/youtube-id', methods=['GET'])
+def get_youtube_id():
+    """
+    Searches YouTube for a song and returns its video ID.
+    The frontend uses this ID with the YouTube IFrame Player API
+    to play full tracks instead of 30-second previews.
+
+    Query params:
+      title  – song title (required)
+      artist – artist name (optional, improves accuracy)
+
+    Response:
+    {
+      "video_id": "dQw4w9WgXcQ"
+    }
+    """
+    title  = request.args.get("title", "").strip()
+    artist = request.args.get("artist", "").strip()
+
+    if not title:
+        return jsonify({"error": "title parameter is required"}), 400
+
+    # Build a search query that's likely to find an embed-friendly version
+    query = f"{artist} {title} official music video" if artist else f"{title} official music video"
+    logging.info(f"[youtube-id] Searching: {query}")
+
+    video_id = search_youtube_id(query)
+
+    if video_id:
+        return jsonify({"video_id": video_id}), 200
+    else:
+        return jsonify({"error": "Could not find a YouTube video for this song"}), 404
 
 
 if __name__ == '__main__':

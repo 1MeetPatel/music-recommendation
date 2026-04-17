@@ -49,6 +49,18 @@
         <div class="fixed top-0 left-64 right-0 bottom-0 pointer-events-none -z-10 bg-[#121212]"></div>
 
         <div class="p-8 max-w-7xl mx-auto">
+            <!-- Connection Check Banner -->
+            <div id="connection-banner" class="hidden p-4 mb-8 bg-orange-500/10 border border-orange-500/30 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-circle-exclamation text-orange-400 text-xl"></i>
+                    <p class="text-sm text-orange-200">
+                        <span class="font-bold">Server Not Detected:</span> Full YouTube playback is restricted when opening files directly. 
+                        Please use <span class="bg-orange-500/20 px-2 py-0.5 rounded font-mono text-white">http://localhost:5000</span>
+                    </p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-orange-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
             <!-- Top Bar -->
             <header class="flex justify-between items-center mb-10">
                 <div>
@@ -345,23 +357,37 @@
                 <button id="player-next-btn" class="text-gray-400 hover:text-white transition"><i class="fa-solid fa-forward-step"></i></button>
             </div>
             
-            <!-- Progress Bar -->
             <div class="flex items-center space-x-3 w-full text-[10px] text-gray-400">
                 <span id="player-current-time">0:00</span>
-                <div class="h-1 flex-1 bg-gray-800 rounded-full overflow-hidden relative cursor-pointer group">
+                <div class="h-1 flex-1 bg-gray-800 rounded-full overflow-hidden relative cursor-pointer group" id="player-progress-container">
                     <div id="player-progress" class="absolute top-0 left-0 h-full bg-[#1DB954] w-0"></div>
                 </div>
-                <span>0:30</span>
+                <span id="player-total-time">0:00</span>
             </div>
+            <div id="player-status-debug" class="text-[9px] uppercase tracking-tighter text-gray-600 mt-1 font-bold">Player: Ready</div>
         </div>
 
         <!-- Right Controls -->
         <div class="flex items-center justify-end space-x-4 w-1/4">
+            <!-- Volume Control -->
+            <div class="flex items-center space-x-2 group/vol mr-2">
+                <button id="player-volume-btn" class="text-gray-400 hover:text-white transition w-5" title="Mute/Unmute">
+                    <i id="volume-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+                <div class="w-24 h-1 bg-gray-800 rounded-full relative cursor-pointer" id="volume-slider-container">
+                    <input type="range" id="volume-slider" min="0" max="100" value="80" 
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div id="volume-progress" class="absolute top-0 left-0 h-full bg-white group-hover/vol:bg-[#1DB954] w-[80%] rounded-full transition-colors"></div>
+                </div>
+            </div>
+
             <button id="player-fav-btn" class="text-gray-400 hover:text-[#1DB954] transition" title="Favorite"><i class="fa-solid fa-heart"></i></button>
             <button id="player-close-btn" class="text-gray-400 hover:text-[#1DB954] transition" title="Close"><i class="fa-solid fa-xmark text-xl"></i></button>
         </div>
 
-        <!-- Hidden Audio Element -->
+        <!-- Hidden YouTube Player IFrame -->
+        <div id="youtube-player" style="position: fixed; bottom: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none;"></div>
+        <!-- Hidden Audio Element (fallback/legacy) -->
         <audio id="audio-element"></audio>
     </div>
 
@@ -439,6 +465,8 @@
 
     <!-- Script -->
     <script src="main.js"></script>
+    <!-- YouTube Player API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
 

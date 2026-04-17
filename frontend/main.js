@@ -1,3 +1,122 @@
+let ytPlayer           = null;
+let ytPlayerReady      = false;
+let progressInterval   = null;
+const API_BASE         = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+
+// --- Global Progress Logic (Accessible by onYouTubeIframeAPIReady) ---
+function startProgressInterval() {
+    clearInterval(progressInterval);
+    progressInterval = setInterval(() => {
+        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function') {
+            const cur = ytPlayer.getCurrentTime();
+            const dur = ytPlayer.getDuration();
+            
+            const curTimeEl = document.getElementById('player-current-time');
+            const totalTimeEl = document.getElementById('player-total-time');
+            const progressEl = document.getElementById('player-progress');
+
+            const fmt = (t) => {
+                if (isNaN(t) || t < 0) return '0:00';
+                const m = Math.floor(t / 60);
+                const s = Math.floor(t % 60);
+                return `${m}:${s < 10 ? '0' : ''}${s}`;
+            };
+
+            if (curTimeEl && !isNaN(cur)) {
+                curTimeEl.textContent = fmt(cur);
+            }
+
+            if (!isNaN(dur) && dur > 0) {
+                if (totalTimeEl) totalTimeEl.textContent = fmt(dur);
+                if (progressEl) progressEl.style.width = `${(cur / dur) * 100}%`;
+            }
+        }
+    }, 500);
+}
+
+// YouTube API Callback (must be global/top-level)
+window.onYouTubeIframeAPIReady = () => {
+    console.log('YouTube API Loaded, initializing player...');
+    ytPlayer = new YT.Player('youtube-player', {
+        height: '1',
+        width: '1',
+        videoId: '',
+        playerVars: {
+            'playsinline': 1,
+            'controls': 0,
+            'disablekb': 1,
+            'fs': 0,
+            'modestbranding': 1,
+            'rel': 0,
+            'origin': window.location.origin,
+            'autoplay': 1
+        },
+        events: {
+            'onReady': () => {
+                ytPlayerReady = true;
+                console.log('YouTube Player Ready');
+            },
+            'onStateChange': (event) => {
+                const playBtn = document.getElementById('player-play-btn');
+                const timeStr = document.getElementById('player-current-time');
+                const statusDebug = document.getElementById('player-status-debug');
+
+                const states = {
+                    [-1]: 'Unstarted',
+                    [0]:  'Ended',
+                    [1]:  'Playing',
+                    [2]:  'Paused',
+                    [3]:  'Buffering',
+                    [5]:  'Video Cued'
+                };
+                if (statusDebug) statusDebug.textContent = `Player: ${states[event.data] || event.data}`;
+
+                if (event.data === YT.PlayerState.PLAYING) {
+                    playBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
+                    startProgressInterval();
+                    if (statusDebug) statusDebug.classList.add('text-green-500');
+                    if (statusDebug) statusDebug.classList.remove('text-orange-400');
+                } else if (event.data === YT.PlayerState.PAUSED) {
+                    playBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
+                    clearInterval(progressInterval);
+                    if (statusDebug) statusDebug.classList.remove('text-green-500');
+                } else if (event.data === YT.PlayerState.BUFFERING) {
+                    playBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>';
+                    // Don't overwrite if we already have a meaningful time
+                    if (timeStr.textContent === '0:00') timeStr.textContent = '...';
+                } else if (event.data === YT.PlayerState.ENDED) {
+                    if (window.playNext) window.playNext();
+                } else if (event.data === YT.PlayerState.CUED) {
+                    if (statusDebug) {
+                        statusDebug.textContent = 'Interaction Required: Click to Play';
+                        statusDebug.classList.add('text-orange-400');
+                    }
+                    ytPlayer.playVideo(); 
+                }
+            },
+            'onError': (e) => {
+                console.error('YouTube Player Error:', e.data);
+                const statusDebug = document.getElementById('player-status-debug');
+                const errors = {
+                    2: 'Invalid ID',
+                    5: 'HTML5 player error',
+                    100: 'Video not found',
+                    101: 'Blocked from embedding',
+                    150: 'Blocked from embedding'
+                };
+                const msg = errors[e.data] || 'Playback issue';
+                if (statusDebug) {
+                    statusDebug.textContent = `Error: ${msg}`;
+                    statusDebug.classList.add('text-red-500');
+                }
+                alert(`Playback Error: ${msg}. Try another song.`);
+                const playBtn = document.getElementById('player-play-btn');
+                playBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
+            }
+        }
+    });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // =============================================
     // DOM REFERENCES
@@ -111,6 +230,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     refreshCursorListeners();
 
+    // Check if on file:// protocol (YouTube playback restriction)
+    if (window.location.protocol === 'file:') {
+        const connBanner = document.getElementById('connection-banner');
+        if (connBanner) connBanner.classList.remove('hidden');
+        console.warn('Moodify is running on file:// protocol. Full tracks may be blocked by YouTube.');
+    }
+
     // Hollywood Songs page
     const pageHollywood = document.getElementById('page-hollywood');
     const hwLoader      = document.getElementById('hw-loader');
@@ -144,12 +270,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerCurrentTime = document.getElementById('player-current-time');
     const playerCloseBtn   = document.getElementById('player-close-btn');
     const playerFavBtn     = document.getElementById('player-fav-btn');
+    const playerTotalTime  = document.getElementById('player-total-time');
+    const playerProgressContainer = document.getElementById('player-progress-container');
+    const volumeSlider     = document.getElementById('volume-slider');
+    const volumeProgress   = document.getElementById('volume-progress');
+    const volumeBtn        = document.getElementById('player-volume-btn');
+    const volumeIcon       = document.getElementById('volume-icon');
+
 
     let currentPlayingSong = null;
     let currentPlayingCard = null;
     let currentMood        = null;
     let currentPlaylist    = [];
     let currentIndex       = -1;
+
 
     // =============================================
     // DYNAMIC GREETING
@@ -356,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         exploreResults.classList.add('hidden');
         exploreLoader.classList.remove('hidden');
         try {
-            const res = await fetch(`http://localhost:5000/api/search?q=${encodeURIComponent(query)}&limit=30`);
+            const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&limit=30`);
             const data = await res.json();
             exploreLoader.classList.add('hidden');
             if (data.songs && data.songs.length > 0) {
@@ -369,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             exploreLoader.classList.add('hidden');
-            exploreEmpty.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-5xl mb-4 text-red-700"></i><p class="text-red-400">Search failed. Is the backend running?</p>';
+            exploreEmpty.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-5xl mb-4 text-red-700"></i><p class="text-red-400">Search failed: ${err.message}</p>`;
             exploreEmpty.classList.remove('hidden');
         }
     }
@@ -386,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hwResults.innerHTML = '';
         hwLoader.classList.remove('hidden');
         try {
-            const res = await fetch(`http://localhost:5000/api/search?q=${encodeURIComponent(query)}&limit=50`);
+            const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&limit=50`);
             const data = await res.json();
             hwLoader.classList.add('hidden');
             if (data.songs && data.songs.length > 0) {
@@ -420,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resetView();
         uiLoadState();
         try {
-            const res = await fetch(`http://localhost:5000/api/recommend?mood=${mood}&limit=${limit}`);
+            const res = await fetch(`${API_BASE}/api/recommend?mood=${mood}&limit=${limit}`);
             if (!res.ok) throw new Error('API Failed');
             const data = await res.json();
             handleSongsResponse(data);
@@ -440,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const history   = getHistory();
 
         try {
-            const res = await fetch('http://localhost:5000/api/smart-recommend', {
+            const res = await fetch(`${API_BASE}/api/smart-recommend`, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({ mood, favorites, history, limit }),
@@ -467,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
         forYouContainer.innerHTML = '';
 
         try {
-            const res = await fetch('http://localhost:5000/api/smart-recommend', {
+            const res = await fetch(`${API_BASE}/api/smart-recommend`, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({ mood, favorites, history, limit: 20 }),
@@ -507,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 limit:   15,
                 history: JSON.stringify(history.slice(0, 30)),  // last 30 plays
             });
-            const res  = await fetch(`http://localhost:5000/api/because-you-liked?${params}`);
+            const res  = await fetch(`${API_BASE}/api/because-you-liked?${params}`);
             const data = await res.json();
             becauseLoader.classList.add('hidden');
 
@@ -526,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resetView();
         uiLoadState();
         try {
-            const res = await fetch(`http://localhost:5000/api/search?q=${encodeURIComponent(query)}&limit=${limit}`);
+            const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&limit=${limit}`);
             if (!res.ok) throw new Error('API Failed');
             const data = await res.json();
             handleSongsResponse(data);
@@ -630,28 +764,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // =============================================
     async function playSong(song, cardElement = null) {
         if (!song) return;
+        
+        const statusDebug = document.getElementById('player-status-debug');
+        
+        if (!ytPlayerReady || !ytPlayer || typeof ytPlayer.loadVideoById !== 'function') {
+            console.warn('YouTube Player not ready, attempting to wait...');
+            if (statusDebug) {
+                statusDebug.textContent = 'Player: Not Ready...';
+                statusDebug.classList.add('text-orange-400');
+            }
+            // Try again in 1s if not ready
+            setTimeout(() => playSong(song, cardElement), 1000);
+            return;
+        }
+
         console.log('Playing:', song.title, 'by:', song.artist);
 
         // Toggle same song
-        if (audioElement.src === song.preview_url) {
-            if (audioElement.paused) {
-                try {
-                    await audioElement.play();
-                    playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
-                } catch (e) { console.error('Resume failed:', e); }
-            } else {
-                audioElement.pause();
+        if (currentPlayingSong && currentPlayingSong.id === song.id) {
+            const state = ytPlayer.getPlayerState();
+            if (state === YT.PlayerState.PLAYING) {
+                ytPlayer.pauseVideo();
                 playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
+                clearInterval(progressInterval);
+            } else {
+                ytPlayer.playVideo();
+                playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
+                startProgressInterval();
             }
             return;
         }
 
-        // Clear state
-        try {
-            audioElement.pause();
-            audioElement.currentTime = 0;
-            if (currentPlayingCard) currentPlayingCard.classList.remove('ring-2', 'ring-purple-500');
-        } catch (e) {}
+        // Clear existing progress interval
+        clearInterval(progressInterval);
 
         // Update UI
         miniPlayer.classList.remove('translate-y-full');
@@ -664,52 +809,71 @@ document.addEventListener('DOMContentLoaded', () => {
         // Track index
         currentIndex = currentPlaylist.findIndex(s => s.id === song.id);
 
-        // Highlight card
-        if (cardElement) {
-            currentPlayingCard = cardElement;
-            cardElement.classList.add('ring-2', 'ring-purple-500');
-        } else {
-            const allCards = document.querySelectorAll('.song-card');
-            if (currentIndex !== -1 && allCards[currentIndex]) {
-                currentPlayingCard = allCards[currentIndex];
-                currentPlayingCard.classList.add('ring-2', 'ring-purple-500');
-                currentPlayingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-        }
-
-        // Load & play
+        // Fetch YouTube ID & Play
         try {
-            audioElement.src = song.preview_url;
+            if (currentPlayingCard) currentPlayingCard.classList.remove('ring-2', 'ring-purple-500');
 
-            await new Promise((resolve) => {
-                const onReady = () => { audioElement.removeEventListener('loadedmetadata', onReady); resolve(); };
-                audioElement.addEventListener('loadedmetadata', onReady);
-                setTimeout(resolve, 1000); // safety fallback
-            });
+            // Highlight card
+            if (cardElement) {
+                currentPlayingCard = cardElement;
+                cardElement.classList.add('ring-2', 'ring-purple-500');
+            } else {
+                const allCards = document.querySelectorAll('.song-card');
+                if (currentIndex !== -1 && allCards[currentIndex]) {
+                    currentPlayingCard = allCards[currentIndex];
+                    currentPlayingCard.classList.add('ring-2', 'ring-purple-500');
+                    currentPlayingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            }
 
-            await audioElement.play();
-            playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
-            addToHistory(song);
-            currentPlayingSong = song;
-            updatePlayerFavoriteUI(song);
+            // Show loading state on play button
+            playerPlayBtn.innerHTML = '<div class="w-5 h-5 border-2 border-gray-900/30 border-t-gray-900 rounded-full animate-spin"></div>';
 
-            // Trigger Collaborative Filtering "Because You Liked" row
-            // Only on home page and only if user has listen history
-            const isHomePage = !pageHome.classList.contains('hidden');
-            if (isHomePage) {
-                fetchBecauseYouLiked(song.artist, song.genre || '');
+            const res = await fetch(`${API_BASE}/api/youtube-id?title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`);
+            
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || `Server returned ${res.status}`);
+            }
+            
+            const data = await res.json();
+
+            if (data.video_id) {
+                console.log('Video ID found:', data.video_id);
+                ytPlayer.loadVideoById(data.video_id);
+                
+                addToHistory(song);
+                currentPlayingSong = song;
+                updatePlayerFavoriteUI(song);
+
+                // Trigger Recommendations
+                const isHomePage = !pageHome.classList.contains('hidden');
+                if (isHomePage) {
+                    fetchBecauseYouLiked(song.artist, song.genre || '');
+                }
+            } else {
+                throw new Error('No video ID found');
             }
         } catch (err) {
             console.error('Playback error:', err);
             playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
+            if (statusDebug) {
+                statusDebug.textContent = `Error: ${err.message}`;
+                statusDebug.classList.add('text-red-500');
+            }
+            // Fallback to preview URL if YouTube fails? 
+            // For now, just let the user know.
         }
     }
+
+    // These functions were moved to the global scope to fix the scoping bug
 
     function playNext() {
         if (currentPlaylist.length === 0) return;
         currentIndex = (currentIndex + 1) % currentPlaylist.length;
         playSong(currentPlaylist[currentIndex]);
     }
+    window.playNext = playNext;
 
     function playPrevious() {
         if (currentPlaylist.length === 0) return;
@@ -721,23 +885,101 @@ document.addEventListener('DOMContentLoaded', () => {
     playerPrevBtn.addEventListener('click', playPrevious);
 
     playerPlayBtn.addEventListener('click', () => {
-        if (audioElement.paused) {
-            audioElement.play();
-            playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
-        } else {
-            audioElement.pause();
+        if (!ytPlayer) return;
+        const state = ytPlayer.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+            ytPlayer.pauseVideo();
             playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5 text-lg"></i>';
+            clearInterval(progressInterval);
+        } else {
+            ytPlayer.playVideo();
+            playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
+            startProgressInterval();
+        }
+    });
+
+    playerProgressContainer.addEventListener('click', (e) => {
+        if (!ytPlayer || !ytPlayer.getDuration) return;
+        const rect = playerProgressContainer.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        const dur = ytPlayer.getDuration();
+        if (dur > 0) {
+            ytPlayer.seekTo(pos * dur, true);
         }
     });
 
     playerCloseBtn.addEventListener('click', () => {
-        audioElement.pause();
+        ytPlayer.pauseVideo();
+        clearInterval(progressInterval);
         miniPlayer.classList.add('translate-y-full');
         if (currentPlayingCard) {
             currentPlayingCard.classList.remove('ring-2', 'ring-purple-500');
             currentPlayingCard = null;
         }
     });
+
+
+    // =============================================
+    // VOLUME CONTROL LOGIC
+    // =============================================
+    let lastVolume = 80;
+    let isMuted = false;
+
+    function updateVolumeUI(value) {
+        if (volumeSlider) volumeSlider.value = value;
+        if (volumeProgress) volumeProgress.style.width = `${value}%`;
+        
+        // Update Icon
+        if (!volumeIcon) return;
+        volumeIcon.className = 'fa-solid';
+        if (value == 0 || isMuted) {
+            volumeIcon.classList.add('fa-volume-xmark');
+            if (volumeProgress) volumeProgress.style.width = '0%';
+        } else if (value < 30) {
+            volumeIcon.classList.add('fa-volume-off');
+        } else if (value < 70) {
+            volumeIcon.classList.add('fa-volume-low');
+        } else {
+            volumeIcon.classList.add('fa-volume-high');
+        }
+    }
+
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            if (ytPlayer && ytPlayer.setVolume) {
+                ytPlayer.setVolume(val);
+                if (val > 0) isMuted = false;
+                updateVolumeUI(val);
+            }
+        });
+    }
+
+    if (volumeBtn) {
+        volumeBtn.addEventListener('click', () => {
+            if (!ytPlayer) return;
+            
+            if (isMuted) {
+                ytPlayer.unMute();
+                ytPlayer.setVolume(lastVolume);
+                isMuted = false;
+                updateVolumeUI(lastVolume);
+            } else {
+                lastVolume = volumeSlider ? volumeSlider.value : 80;
+                ytPlayer.mute();
+                isMuted = true;
+                updateVolumeUI(0);
+            }
+        });
+    }
+
+    // Set initial volume
+    setTimeout(() => {
+        if (ytPlayer && ytPlayer.setVolume) {
+            ytPlayer.setVolume(80);
+            updateVolumeUI(80);
+        }
+    }, 2000);
 
     // =============================================
     // PLAYER FAVORITES LOGIC
@@ -783,15 +1025,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    audioElement.addEventListener('timeupdate', () => {
-        const cur = audioElement.currentTime;
-        const dur = audioElement.duration || 30;
-        const fmt = (t) => { const s = Math.floor(t); return `0:${s < 10 ? '0' : ''}${s}`; };
-        playerCurrentTime.textContent = fmt(cur);
-        playerProgress.style.width = `${(cur / dur) * 100}%`;
-    });
-
-    audioElement.addEventListener('ended', () => playNext());
 
     // =============================================
     // PROFILE MODAL
