@@ -6,7 +6,7 @@ Experience top trending hits, intelligent AI-powered music recommendations, and 
 
 ---
 
-## ✨ Features
+##  Features
 
 - **🎧 Premium Playback Engine:** Seamless, full-length audio streaming powered by a headless YouTube IFrame integration.
 - **📈 Dynamic Trending:** Discover what's hot right now. The app queries top 2024 English hits on every load and randomly curates a fresh, dynamic feed of popular tracks.
@@ -18,7 +18,7 @@ Experience top trending hits, intelligent AI-powered music recommendations, and 
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3, Tailwind CSS, FontAwesome
 - **Backend Server:** Python, Flask
@@ -27,7 +27,7 @@ Experience top trending hits, intelligent AI-powered music recommendations, and 
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 Make sure you have Python 3 installed on your system.
@@ -62,9 +62,9 @@ http://localhost:5000
 
 ---
 
-## ⚠️ Important Notes
+##  Important Notes
 - Avoid opening `index.html` directly via double-clicking in your file explorer (`file:///`). This triggers strict browser security protocols that permanently block YouTube from embedding audio. You **must** view the app via `localhost:5000`.
-- The application focuses specifically on English and Hollywood music libraries.
+- The application focuses on all types of music.
 
 ---
 
