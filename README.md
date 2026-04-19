@@ -9,7 +9,7 @@ Experience top trending hits, intelligent AI-powered music recommendations, and 
 ##  Features
 
 - **🎧 Premium Playback Engine:** Seamless, full-length audio streaming powered by a headless YouTube IFrame integration.
-- **📈 Dynamic Trending:** Discover what's hot right now. The app queries top 2024 English hits on every load and randomly curates a fresh, dynamic feed of popular tracks.
+- **📈 Dynamic Trending:** Discover what's hot right now. The app queries top English hits on every load and randomly curates a fresh, dynamic feed of popular tracks.
 - **🧠 Intelligent "Music Picks":** Features built-in Content-Based filtering algorithms that learn from your active listening session to build personalized feed recommendations.
 - **💡 "Because You Like" Suggestions:** A lightweight Collaborative Filtering simulation that matches your play history with similar artists and genres to recommend fresh tracks natively.
 - **🔍 Global Explore:** Instantly search the iTunes database for any track, artist, or album. 
