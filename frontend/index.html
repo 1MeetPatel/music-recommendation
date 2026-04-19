@@ -24,22 +24,13 @@
             <h1 class="text-2xl font-bold tracking-tight text-white">Moodify</h1>
         </div>
 
-        <nav class="flex-1 space-y-6">
-            <div>
-                <h3 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold">Features</h3>
-                <ul class="space-y-3 nav-links">
-                    <li class="active"><a href="#" id="nav-home" class="flex items-center space-x-3 text-gray-400 hover:text-white transition group"><i class="fa-solid fa-house w-5 group-hover:text-[#1DB954]"></i><span>Home</span></a></li>
-                    <li><a href="#" id="nav-explore" class="flex items-center space-x-3 text-gray-400 hover:text-white transition group"><i class="fa-solid fa-compass w-5 group-hover:text-[#1DB954]"></i><span>Explore</span></a></li>
-                    <li><a href="#" id="nav-movies" class="flex items-center space-x-3 text-gray-400 hover:text-white transition group"><i class="fa-solid fa-film w-5 group-hover:text-[#1DB954]"></i><span>Hollywood Songs 🎬</span></a></li>
-                </ul>
-            </div>
-            <div>
-                <h3 class="text-xs uppercase tracking-wider text-gray-500 mb-4 font-semibold">Library</h3>
-                <ul class="space-y-3 nav-links">
-                    <li><a href="#" id="nav-favorites" class="flex items-center space-x-3 text-gray-400 hover:text-white transition group"><i class="fa-solid fa-heart w-5 group-hover:text-[#1DB954]"></i><span>Favorites</span></a></li>
-                    <li><a href="#" id="nav-history" class="flex items-center space-x-3 text-gray-400 hover:text-white transition group"><i class="fa-solid fa-clock-rotate-left w-5 group-hover:text-[#1DB954]"></i><span>History</span></a></li>
-                </ul>
-            </div>
+        <nav class="flex-1">
+            <ul class="space-y-3 nav-links">
+                <li class="active"><a href="#" id="nav-home" class="flex items-center space-x-3 text-gray-400 hover:text-white transition group"><i class="fa-solid fa-house w-5 group-hover:text-[#1DB954]"></i><span>Home</span></a></li>
+                <li><a href="#" id="nav-explore" class="flex items-center space-x-3 text-gray-400 hover:text-white transition group"><i class="fa-solid fa-compass w-5 group-hover:text-[#1DB954]"></i><span>Explore</span></a></li>
+                <li><a href="#" id="nav-favorites" class="flex items-center space-x-3 text-gray-400 hover:text-white transition group"><i class="fa-solid fa-heart w-5 group-hover:text-[#1DB954]"></i><span>Favorites</span></a></li>
+                <li><a href="#" id="nav-history" class="flex items-center space-x-3 text-gray-400 hover:text-white transition group"><i class="fa-solid fa-clock-rotate-left w-5 group-hover:text-[#1DB954]"></i><span>History</span></a></li>
+            </ul>
         </nav>
     </aside>
 
@@ -81,10 +72,10 @@
                 </div>
             </header>
 
-            <!-- Mood Selection -->
+            <!-- Trending Hits Section -->
             <section class="mb-12">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold flex items-center text-white"><i class="fa-solid fa-masks-theater text-[#1DB954] mr-3"></i> How are you feeling today?</h3>
+                    <h3 class="text-xl font-bold flex items-center text-white"><i class="fa-solid fa-chart-line text-[#1DB954] mr-3"></i> Trending Now 📈</h3>
                     <!-- Smart Mode Toggle -->
                     <button id="smart-mode-toggle" title="Toggle AI-powered recommendations" class="flex items-center space-x-2 px-4 py-1.5 rounded-full border border-gray-700/50 bg-gray-800/60 text-gray-400 text-xs font-semibold hover:border-[#1DB954]/60 transition-all select-none">
                         <span id="smart-mode-icon" class="text-base">✨</span>
@@ -92,58 +83,22 @@
                         <span id="smart-mode-dot" class="w-2 h-2 rounded-full bg-gray-600 ml-1"></span>
                     </button>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="mood-container">
-                    
-                    <div class="mood-card bg-gray-800/60 hover:bg-gray-700/80 rounded-2xl p-4 cursor-pointer backdrop-blur-md border border-gray-700/50 flex flex-col items-center justify-center text-center transition-all duration-300" data-mood="happy" data-glow="shadow-[0_0_25px_rgba(250,204,21,0.5)]" data-border="border-yellow-500/50">
-                        <span class="text-4xl mb-2 drop-shadow-lg">😊</span>
-                        <h4 class="font-bold text-sm tracking-wide">Happy</h4>
-                        <span class="text-[10px] text-gray-400 mt-1">Feel good English hits</span>
-                    </div>
+                
+                <!-- Trending Loader -->
+                <div id="trending-loader" class="flex flex-col items-center justify-center py-10">
+                    <div class="w-10 h-10 border-4 border-[#1DB954]/30 border-t-[#1DB954] rounded-full animate-spin"></div>
+                </div>
 
-                    <div class="mood-card bg-gray-800/60 hover:bg-gray-700/80 rounded-2xl p-4 cursor-pointer backdrop-blur-md border border-gray-700/50 flex flex-col items-center justify-center text-center transition-all duration-300" data-mood="sad" data-glow="shadow-[0_0_25px_rgba(59,130,246,0.5)]" data-border="border-blue-500/50">
-                        <span class="text-4xl mb-2 drop-shadow-lg">😢</span>
-                        <h4 class="font-bold text-sm tracking-wide">Sad</h4>
-                        <span class="text-[10px] text-gray-400 mt-1">Heartbreak & mellow</span>
-                    </div>
-
-                    <div class="mood-card bg-gray-800/60 hover:bg-gray-700/80 rounded-2xl p-4 cursor-pointer backdrop-blur-md border border-gray-700/50 flex flex-col items-center justify-center text-center transition-all duration-300" data-mood="relaxed" data-glow="shadow-[0_0_25px_rgba(34,197,94,0.5)]" data-border="border-green-500/50">
-                        <span class="text-4xl mb-2 drop-shadow-lg">😌</span>
-                        <h4 class="font-bold text-sm tracking-wide">Relaxed</h4>
-                        <span class="text-[10px] text-gray-400 mt-1">Chill acoustic vibes</span>
-                    </div>
-
-                    <div class="mood-card bg-gray-800/60 hover:bg-gray-700/80 rounded-2xl p-4 cursor-pointer backdrop-blur-md border border-gray-700/50 flex flex-col items-center justify-center text-center transition-all duration-300" data-mood="energetic" data-glow="shadow-[0_0_25px_rgba(249,115,22,0.5)]" data-border="border-orange-500/50">
-                        <span class="text-4xl mb-2 drop-shadow-lg">⚡</span>
-                        <h4 class="font-bold text-sm tracking-wide">Energetic</h4>
-                        <span class="text-[10px] text-gray-400 mt-1">Workout & hype trap</span>
-                    </div>
-
-                    <div class="mood-card bg-gray-800/60 hover:bg-gray-700/80 rounded-2xl p-4 cursor-pointer backdrop-blur-md border border-gray-700/50 flex flex-col items-center justify-center text-center transition-all duration-300" data-mood="romantic" data-glow="shadow-[0_0_25px_rgba(236,72,153,0.5)]" data-border="border-pink-500/50">
-                        <span class="text-4xl mb-2 drop-shadow-lg">❤️</span>
-                        <h4 class="font-bold text-sm tracking-wide">Romantic</h4>
-                        <span class="text-[10px] text-gray-400 mt-1">Love & intimacy</span>
-                    </div>
-
-                    <div class="mood-card bg-gray-800/60 hover:bg-gray-700/80 rounded-2xl p-4 cursor-pointer backdrop-blur-md border border-gray-700/50 flex flex-col items-center justify-center text-center transition-all duration-300" data-mood="angry" data-glow="shadow-[0_0_25px_rgba(239,68,68,0.5)]" data-border="border-red-500/50">
-                        <span class="text-4xl mb-2 drop-shadow-lg">😡</span>
-                        <h4 class="font-bold text-sm tracking-wide">Angry</h4>
-                        <span class="text-[10px] text-gray-400 mt-1">Heavy rock & metal</span>
-                    </div>
-
-                    <div class="mood-card bg-gray-800/60 hover:bg-gray-700/80 rounded-2xl p-4 cursor-pointer backdrop-blur-md border border-gray-700/50 flex flex-col items-center justify-center text-center transition-all duration-300" data-mood="focus" data-glow="shadow-[0_0_25px_rgba(29,185,84,0.5)]" data-border="border-[#1DB954]/50">
-                        <span class="text-4xl mb-2 drop-shadow-lg">🎯</span>
-                        <h4 class="font-bold text-sm tracking-wide">Focus</h4>
-                        <span class="text-[10px] text-gray-400 mt-1">Deep work & study</span>
-                    </div>
-
+                <!-- Trending Songs Grid -->
+                <div id="trending-container" class="hidden grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4">
+                    <!-- Javascript will inject trending cards here -->
                 </div>
             </section>
 
             <!-- Recommended Songs Section -->
             <section class="mb-12">
                 <div class="flex justify-between items-end mb-6">
-                    <h3 class="text-xl font-bold flex items-center text-white"><i class="fa-solid fa-compact-disc text-[#1DB954] mr-3"></i> <span id="section-title">Hollywood Picks for You</span> 🎬</h3>
-                    <span id="btn-see-all" class="text-sm text-gray-400 hover:text-white cursor-pointer transition">See all</span>
+                    <h3 class="text-xl font-bold flex items-center text-white"><i class="fa-solid fa-compact-disc text-[#1DB954] mr-3"></i> <span id="section-title">Music picks for you</span> 🎶</h3>
                 </div>
                 
                 <!-- Loading Spinner -->
@@ -152,11 +107,6 @@
                     <p class="text-sm text-gray-400 mt-3 animate-pulse">Finding the perfect English tracks...</p>
                 </div>
 
-                <!-- Empty State (Before Selection) -->
-                <div id="empty-state" class="flex flex-col items-center justify-center py-16 px-4 border border-dashed border-gray-800 rounded-2xl bg-[#181818]/40">
-                    <span class="text-5xl mb-4 text-gray-700">🎧</span>
-                    <p class="text-gray-500 font-medium">Select a mood above to discover new Hollywood hits.</p>
-                </div>
 
                 <!-- Songs Container (Horizontal Scroll) -->
                 <div id="songs-container" class="hidden flex space-x-6 overflow-x-auto pb-6 pt-2 custom-scroll scroll-smooth snap-x">
@@ -197,39 +147,7 @@
             </section>
 
             <!-- Playlists -->
-            <section class="mb-10">
-                <h3 class="text-xl font-semibold mb-6">Curated For You</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    
-                    <div class="relative overflow-hidden rounded-2xl group cursor-pointer h-40 playlist-card" data-mood="energetic">
-                        <img src="party_hits.png" class="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-110" alt="Party">
-                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
-                        <div class="absolute bottom-4 left-4 right-4">
-                            <h4 class="font-bold text-lg text-white">Hollywood Party Hits 🎉</h4>
-                            <p class="text-xs text-gray-300">Top chart English bangers</p>
-                        </div>
-                    </div>
 
-                    <div class="relative overflow-hidden rounded-2xl group cursor-pointer h-40 playlist-card" data-mood="relaxed">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-110" alt="Chill">
-                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
-                        <div class="absolute bottom-4 left-4 right-4">
-                            <h4 class="font-bold text-lg text-white">Chill English Vibes 🌙</h4>
-                            <p class="text-xs text-gray-300">Lofi & acoustic evenings</p>
-                        </div>
-                    </div>
-
-                    <div class="relative overflow-hidden rounded-2xl group cursor-pointer h-40 playlist-card" data-mood="romantic">
-                        <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-110" alt="Romantic">
-                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
-                        <div class="absolute bottom-4 left-4 right-4">
-                            <h4 class="font-bold text-lg text-white">Romantic Hollywood 💕</h4>
-                            <p class="text-xs text-gray-300">Timeless love anthems</p>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
         </div>
 
         <!-- ===== FAVORITES PAGE ===== -->
@@ -303,33 +221,7 @@
             <div id="explore-results" class="hidden grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
         </div>
 
-        <!-- ===== HOLLYWOOD SONGS PAGE ===== -->
-        <div id="page-hollywood" class="hidden p-8 max-w-7xl mx-auto">
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold mb-1 text-white">Hollywood Songs <span class="text-[#1DB954]">🎬</span></h2>
-                <p class="text-gray-400 text-sm">All the latest Hollywood hits in one place</p>
-            </div>
 
-            <!-- Filter Genre Chips -->
-            <div class="flex flex-wrap gap-3 mb-8">
-                <span class="text-xs text-gray-500 self-center mr-2">Browse by:</span>
-                <button class="hw-chip active-chip px-4 py-1.5 rounded-full bg-[#1DB954] border border-[#1DB954] text-black text-sm font-bold transition" data-query="top hollywood english hits">🌟 All</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood pop songs english">🎵 Pop</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood rock english hits">🎸 Rock</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood rnb soul english">🎶 R&B</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood hip hop rap english">🎤 Hip-Hop</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="hollywood indie alternative english">🌿 Indie</button>
-                <button class="hw-chip px-4 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-sm text-gray-300 hover:bg-[#1DB954]/20 hover:border-[#1DB954]/40 hover:text-white transition" data-query="2024 hollywood top chart songs">🔥 Charts 2024</button>
-            </div>
-
-            <!-- Loading -->
-            <div id="hw-loader" class="hidden flex flex-col items-center justify-center py-10">
-                <div class="w-10 h-10 border-4 border-[#1DB954]/30 border-t-[#1DB954] rounded-full animate-spin"></div>
-                <p class="text-sm text-gray-400 mt-3 animate-pulse">Loading Hollywood songs...</p>
-            </div>
-            <!-- Grid -->
-            <div id="hw-results" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
-        </div>
 
     </main>
 
@@ -459,9 +351,7 @@
         }
     </style>
 
-    <!-- Beautiful Custom Cursor -->
-    <div id="custom-cursor"></div>
-    <div id="cursor-aura"></div>
+
 
     <!-- Script -->
     <script src="main.js"></script>

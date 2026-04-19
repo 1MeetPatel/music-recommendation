@@ -121,17 +121,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // =============================================
     // DOM REFERENCES
     // =============================================
-    const moodCards        = document.querySelectorAll('.mood-card');
+    const trendingContainer = document.getElementById('trending-container');
+    const trendingLoader    = document.getElementById('trending-loader');
     const songsContainer   = document.getElementById('songs-container');
     const loader           = document.getElementById('loader');
-    const emptyState       = document.getElementById('empty-state');
-    const btnSeeAll        = document.getElementById('btn-see-all');
+
     const sectionTitle     = document.getElementById('section-title');
     const navFavorites     = document.getElementById('nav-favorites');
     const navHistory       = document.getElementById('nav-history');
     const navHome          = document.getElementById('nav-home');
     const navExplore       = document.getElementById('nav-explore');
-    const navMovies        = document.getElementById('nav-movies');
+
     const dynamicGreeting  = document.getElementById('dynamic-greeting');
 
     // =============================================
@@ -185,50 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const exploreResults      = document.getElementById('explore-results');
     const exploreChips        = document.querySelectorAll('.explore-chip');
 
-    // =============================================
-    // CUSTOM CURSOR LOGIC
-    // =============================================
-    const cursor = document.getElementById('custom-cursor');
-    const aura = document.getElementById('cursor-aura');
-    let mouseX = 0, mouseY = 0;
-    let cursorX = 0, cursorY = 0;
-    let auraX = 0, auraY = 0;
-
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        if (cursor.style.display === 'none' || !cursor.style.display) {
-            cursor.style.display = 'block';
-            aura.style.display = 'block';
-        }
-    });
-
-    const animateCursor = () => {
-        cursorX += (mouseX - cursorX) * 0.25;
-        cursorY += (mouseY - cursorY) * 0.25;
-        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
-
-        auraX += (mouseX - auraX) * 0.12;
-        auraY += (mouseY - auraY) * 0.12;
-        aura.style.transform = `translate(${auraX}px, ${auraY}px) translate(-50%, -50%)`;
-
-        requestAnimationFrame(animateCursor);
-    };
-    animateCursor();
-
-    const handleMouseEnter = () => document.body.classList.add('cursor-hover');
-    const handleMouseLeave = () => document.body.classList.remove('cursor-hover');
-
-    const refreshCursorListeners = () => {
-        const interactables = document.querySelectorAll('a, button, .mood-card, .song-card, .playlist-card, .cursor-pointer, #player-progress');
-        interactables.forEach(el => {
-            el.removeEventListener('mouseenter', handleMouseEnter);
-            el.removeEventListener('mouseleave', handleMouseLeave);
-            el.addEventListener('mouseenter', handleMouseEnter);
-            el.addEventListener('mouseleave', handleMouseLeave);
-        });
-    };
-    refreshCursorListeners();
 
     // Check if on file:// protocol (YouTube playback restriction)
     if (window.location.protocol === 'file:') {
@@ -237,11 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Moodify is running on file:// protocol. Full tracks may be blocked by YouTube.');
     }
 
-    // Hollywood Songs page
-    const pageHollywood = document.getElementById('page-hollywood');
-    const hwLoader      = document.getElementById('hw-loader');
-    const hwResults     = document.getElementById('hw-results');
-    const hwChips       = document.querySelectorAll('.hw-chip');
+
 
     // Main home page wrapper
     const pageHome = document.querySelector('.p-8.max-w-7xl.mx-auto');
@@ -303,8 +255,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // =============================================
     // PAGE NAVIGATION
     // =============================================
-    const allPages = [pageHome, pageFavorites, pageHistory, pageExplore, pageHollywood];
-    const allNavLinks = [navHome, navExplore, navMovies, navFavorites, navHistory];
+    const allPages = [pageHome, pageFavorites, pageHistory, pageExplore];
+    const allNavLinks = [navHome, navExplore, navFavorites, navHistory];
 
     function showPage(targetPage, activeNav = null) {
         allPages.forEach(p => { if (p) p.classList.add('hidden'); });
@@ -316,10 +268,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeNav) activeNav.closest('li')?.classList.add('active');
     }
 
-    // Start on home page
     showPage(pageHome, navHome);
     pageExplore.classList.add('hidden');
-    pageHollywood.classList.add('hidden');
+    initTrendingHits();
 
     navHome.addEventListener('click', (e) => {
         e.preventDefault();
@@ -332,11 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         exploreSearchInput.focus();
     });
 
-    navMovies.addEventListener('click', (e) => {
-        e.preventDefault();
-        showPage(pageHollywood, navMovies);
-        loadHollywoodSongs('top hollywood english hits');
-    });
+
 
     navFavorites.addEventListener('click', (e) => {
         e.preventDefault();
@@ -399,53 +346,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // =============================================
     // HOME PAGE - MOOD SELECTION
     // =============================================
-    moodCards.forEach(card => {
-        card.addEventListener('click', async () => {
-            moodCards.forEach(c => {
-                c.classList.remove('active-mood', c.dataset.border, c.dataset.glow, 'scale-105', 'bg-gray-700/80');
-            });
-            card.classList.add('active-mood', card.dataset.border, card.dataset.glow, 'scale-105', 'bg-gray-700/80');
-            const mood = card.dataset.mood;
-            currentMood = mood;
-            sectionTitle.textContent = `${mood.charAt(0).toUpperCase() + mood.slice(1)} Hollywood Picks`;
-            btnSeeAll.textContent = 'See all for this mood';
-
-            if (smartModeOn) {
-                fetchSmartRecommend(mood);
-            } else {
-                fetchSongsByMood(mood);
+    // =============================================
+    // TRENDING HITS SECTION
+    // =============================================
+    async function initTrendingHits() {
+        trendingLoader.classList.remove('hidden');
+        trendingContainer.classList.add('hidden');
+        try {
+            const res = await fetch(`${API_BASE}/api/trending?limit=14`);
+            const data = await res.json();
+            trendingLoader.classList.add('hidden');
+            if (data.songs && data.songs.length > 0) {
+                renderSongs(data.songs, trendingContainer);
+                trendingContainer.classList.remove('hidden');
             }
-        });
-    });
-
-    const playlistCards = document.querySelectorAll('.playlist-card');
-    playlistCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const mood = card.dataset.mood;
-            currentMood = mood;
-            sectionTitle.textContent = `${mood.charAt(0).toUpperCase() + mood.slice(1)} Hollywood Hits`;
-            btnSeeAll.textContent = 'See all for this mood';
-            fetchSongsByMood(mood);
-            songsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-    });
-
-
-
-    btnSeeAll.addEventListener('click', () => {
-        if (btnSeeAll.textContent === 'Clear History') {
-            localStorage.setItem('moodify_history', '[]');
-            renderSongs([], songsContainer);
-            return;
+        } catch (err) {
+            console.error('Trending fetch failed:', err);
+            trendingLoader.classList.add('hidden');
         }
-        if (currentMood) {
-            fetchSongsByMood(currentMood, 50);
-            songsContainer.classList.remove('flex', 'space-x-6', 'overflow-x-auto');
-            songsContainer.classList.add('grid', 'grid-cols-2', 'md:grid-cols-4', 'lg:grid-cols-5', 'gap-6', 'overflow-y-visible');
-        } else {
-            fetchSongsBySearch('top english hits', 40);
-        }
-    });
+    }
+
+
+
+
 
     const resetView = () => {
         songsContainer.classList.add('flex', 'space-x-6', 'overflow-x-auto');
@@ -508,44 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // =============================================
-    // HOLLYWOOD SONGS PAGE
-    // =============================================
 
-    let hwCurrentQuery = '';
-
-    async function loadHollywoodSongs(query) {
-        if (query === hwCurrentQuery && hwResults.children.length > 0) return; // avoid re-fetching same
-        hwCurrentQuery = query;
-        hwResults.innerHTML = '';
-        hwLoader.classList.remove('hidden');
-        try {
-            const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&limit=50`);
-            const data = await res.json();
-            hwLoader.classList.add('hidden');
-            if (data.songs && data.songs.length > 0) {
-                currentPlaylist = data.songs;
-                renderSongs(data.songs, hwResults);
-            } else {
-                hwResults.innerHTML = '<div class="col-span-5 text-center py-10 text-gray-500">No songs found.</div>';
-            }
-        } catch (err) {
-            hwLoader.classList.add('hidden');
-            hwResults.innerHTML = '<div class="col-span-5 text-center py-10 text-red-400">Failed to load songs. Is the backend running?</div>';
-        }
-    }
-
-    hwChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            hwChips.forEach(c => {
-                c.classList.remove('active-chip', 'bg-purple-600/60', 'border-purple-500/50', 'text-white');
-                c.classList.add('bg-gray-800/60', 'border-gray-700/50', 'text-gray-300');
-            });
-            chip.classList.add('active-chip', 'bg-purple-600/60', 'border-purple-500/50', 'text-white');
-            chip.classList.remove('bg-gray-800/60', 'border-gray-700/50', 'text-gray-300');
-            loadHollywoodSongs(chip.dataset.query);
-        });
-    });
 
     // =============================================
     // API FETCHERS (for Home page)
@@ -671,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function uiLoadState() {
-        emptyState.classList.add('hidden');
+        if (trendingContainer) trendingContainer.classList.add('opacity-50');
         songsContainer.classList.add('hidden');
         loader.classList.remove('hidden');
         songsContainer.innerHTML = '';
@@ -713,6 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const card = document.createElement('div');
             card.className = 'song-card flex-shrink-0 bg-gray-800/40 rounded-xl p-3 hover:bg-gray-700/50 transition-all cursor-pointer group relative';
+            card.setAttribute('data-song-id', song.id);
             card.innerHTML = `
                 <div class="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg mb-3">
                     <img src="${song.image || 'https://via.placeholder.com/150'}" alt="${song.title}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
@@ -730,10 +617,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             `;
 
-            card.addEventListener('click', () => playSong(song, card));
+            card.addEventListener('click', () => {
+                currentPlaylist = songs;
+                playSong(song, card);
+            });
 
             card.querySelector('.play-overlay').addEventListener('click', (e) => {
                 e.stopPropagation();
+                currentPlaylist = songs;
                 playSong(song, card);
             });
 
@@ -756,7 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Re-attach cursor hover listeners for new cards
-        refreshCursorListeners();
+
     }
 
     // =============================================
@@ -818,9 +709,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentPlayingCard = cardElement;
                 cardElement.classList.add('ring-2', 'ring-purple-500');
             } else {
-                const allCards = document.querySelectorAll('.song-card');
-                if (currentIndex !== -1 && allCards[currentIndex]) {
-                    currentPlayingCard = allCards[currentIndex];
+                const matchingCards = Array.from(document.querySelectorAll(`.song-card[data-song-id="${song.id}"]`));
+                const visibleCard = matchingCards.find(c => c.offsetParent !== null) || matchingCards[0];
+                if (visibleCard) {
+                    currentPlayingCard = visibleCard;
                     currentPlayingCard.classList.add('ring-2', 'ring-purple-500');
                     currentPlayingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }
@@ -848,7 +740,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Trigger Recommendations
                 const isHomePage = !pageHome.classList.contains('hidden');
-                if (isHomePage) {
+                
+                // Do not redraw the recommendation section if we are currently playing or skipping through it
+                const isFromBecauseSection = currentPlayingCard && currentPlayingCard.closest('#because-container');
+                
+                if (isHomePage && !isFromBecauseSection) {
                     fetchBecauseYouLiked(song.artist, song.genre || '');
                 }
             } else {

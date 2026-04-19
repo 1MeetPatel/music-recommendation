@@ -1,7 +1,7 @@
 import os
 import requests
 import logging
-
+import random
 logger = logging.getLogger(__name__)
 
 # Map moods to search keywords as requested
@@ -26,6 +26,19 @@ class SpotifyService:
         if not keyword:
             return {"error": f"Invalid mood. Supported moods: {', '.join(MOOD_MAP.keys())}", "songs": []}
         return self.search_songs(keyword, limit)
+
+    def get_trending_songs(self, limit=15):
+        """Fetch current trending/top English hits and shuffle for variety."""
+        # We request a larger pool (e.g., 50) so we have a good selection to shuffle from
+        result = self.search_songs("top english hits 2024", limit=50)
+        
+        songs = result.get("songs", [])
+        if songs:
+            # Shuffle the large pool so a random subset is displayed to the user
+            random.shuffle(songs)
+            result["songs"] = songs
+            
+        return result
 
     def search_songs(self, query, limit=15):
         """

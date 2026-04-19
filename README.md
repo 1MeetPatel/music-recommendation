@@ -24,9 +24,9 @@ Moodify is a full-stack music discovery web app with a Spotify-inspired dark UI.
 
 | Feature | Description |
 |---|---|
-| 🎭 **Mood Selection** | 7 moods: Happy, Sad, Relaxed, Energetic, Romantic, Angry, Focus |
+| 📈 **Trending Now** | Loads real-time Hollywood top hits with actual artwork automatically on startup |
 | 🔍 **Live Search** | Debounced real-time search with quick-chip suggestions on the Explore page |
-| 🎬 **Hollywood Songs** | Dedicated page with genre filters (Pop, Rock, R&B, Hip-Hop, Indie, Charts) |
+
 | ▶️ **Built-in Player** | Mini audio player with prev/next, progress bar, and 30-second song previews |
 | ❤️ **Favorites** | Save songs; synced between cards and the mini player |
 | 🕐 **History** | Tracks up to 50 recently played songs with a clear option |
@@ -160,19 +160,7 @@ music-recommendation/
 
 ---
 
-##  Supported Moods
-
-| Mood | iTunes Search Keyword |
-|---|---|
-| 😊 Happy | `happy english songs` |
-| 😢 Sad | `sad english songs` |
-| 😌 Relaxed | `chill english songs` |
-| ⚡ Energetic | `workout english songs` |
-| ❤️ Romantic | `romantic english songs` |
-| 😡 Angry | `rock english songs` |
-| 🎯 Focus | `instrumental english songs` |
-
----
+## 🚀 Getting Started
 
 ## 🚀 Getting Started
 

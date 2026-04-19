@@ -68,6 +68,19 @@ def search():
     return jsonify({"songs": songs}), 200
 
 
+@app.route('/api/trending', methods=['GET'])
+def trending():
+    limit = request.args.get('limit', default=15, type=int)
+    logging.info(f"[trending] limit={limit}")
+    result = spotify_service.get_trending_songs(limit)
+
+    if "error" in result and not result.get("songs"):
+        return jsonify(result), 500
+
+    songs = result.get("songs", [])[:limit]
+    return jsonify({"songs": songs}), 200
+
+
 # ---------------------------------------------------------------------------
 # NEW: Content-Based Smart Recommendation endpoint
 # ---------------------------------------------------------------------------
