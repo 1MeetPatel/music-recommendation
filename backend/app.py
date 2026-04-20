@@ -14,8 +14,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 load_dotenv()  # Load variables from .env
 
-# Point Flask to serve the frontend folder (use abspath for gunicorn compatibility)
-FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
+# Point Flask to serve the frontend folder
+FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend')
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 # Enable CORS to allow the frontend to access the API
@@ -245,5 +245,4 @@ def get_youtube_id():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host="0.0.0.0", port=port)
+    app.run(debug=True, port=5000)
